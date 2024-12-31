@@ -1,17 +1,11 @@
 %include "main.inc"
 
 section .data
-    msg db "Hello World", 0xA, 0
-    msglen equ $-msg
+    msg db "Hello World!", 10, 0
 
 section .text
     global _start
 
 _start:
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, msg
-    mov rdx, msglen
-    syscall
-
+    printWord msg
     exit
