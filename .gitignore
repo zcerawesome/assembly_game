@@ -1,2 +1,4 @@
 # ignore object files
 *.o
+# ignore excecutables
+Main
