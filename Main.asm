@@ -1,3 +1,5 @@
+%include "main.inc"
+
 section .data
     msg db "Hello World", 0xA, 0
     msglen equ $-msg
@@ -12,6 +14,4 @@ _start:
     mov rdx, msglen
     syscall
 
-    mov rax, 60
-    mov rdi, 1
-    syscall
+    exit
