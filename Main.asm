@@ -7,5 +7,6 @@ section .text
     global _start
 
 _start:
-    printWord msg
+    printf "s", msg
+    printf "d", 123
     exit
