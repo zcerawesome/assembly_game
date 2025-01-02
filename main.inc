@@ -1,6 +1,6 @@
-%macro exit 0
+%macro exit 1
     mov rax, 60
-    mov rdi, 1
+    mov rdi, %1
     syscall
 %endmacro
 
@@ -18,28 +18,21 @@
     jmp %%_end
 
 %%_printNum:
-    mov rax, %2          ; Load number to convert
-    sub rsp, 32          ; Reserve space for the string
-    lea rsi, [rsp]       ; rsi points to buffer start
-    mov byte [rsi + 31], 0  ; Add null terminator at the end
-    mov rdi, rsi         ; rdi points to the end of the buffer (write backward)
-    add rdi, 30
-
+    mov rax, %2
+    dec rsp
+    mov byte [rsp], 0
 %%_diving:
-    xor rdx, rdx         ; Clear rdx
-    mov rcx, 10          ; Set divisor (10)
-    div rcx              ; rax = quotient, rdx = remainder
-    add dl, 48           ; Convert remainder to ASCII
-    mov [rdi], dl        ; Store digit in buffer
-    dec rdi              ; Move pointer backward
-    test rax, rax        ; Check if rax == 0
-    jnz %%_diving        ; If not, continue dividing
-
-    lea rsi, [rdi + 1]   ; Adjust rsi to point to the first digit
-    printWord rsi        ; Print the null-terminated string
-    add rsp, 32          ; Restore stack space
+    xor rdx, rdx
+    mov rdi, 10
+    div rdi
+    add rdx, 48
+    dec rsp
+    mov byte [rsp], dl
+    cmp rax, 0
+    jne %%_diving
+    lea rsi, [rsp]
+    printWord rsi
     jmp %%_end
-
 %%_end:
     mov rsp, rbp
     pop rbp
@@ -57,13 +50,13 @@
 %endmacro
 
 %macro printWord 1
-    mov rax, %1
-    push dword 0
+    mov rbx, %1
+    push 0
 %%_reading:
-    cmp byte [rax], 0
+    cmp byte [rbx], 0
     je %%_print
-    inc rax
-    inc dword [rsp]
+    inc rbx
+    inc qword [rsp]
     jmp %%_reading
 %%_print:
     mov rax, 1

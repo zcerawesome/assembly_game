@@ -6,7 +6,7 @@ section .data
 section .text
     global _start
 
+istruc ListNode:
+
 _start:
-    printf "s", msg
-    printf "d", 123
-    exit
+    exit 0
