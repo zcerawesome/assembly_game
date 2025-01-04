@@ -1,0 +1,1 @@
+g++ main.o Main.o -o Main -e _start1
