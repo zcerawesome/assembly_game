@@ -5,14 +5,19 @@ struc Point
     .y: resd 1
 endstruc
 
+section .rodata
+    sixteen_bit_address db "0123456789abcdef"
+
 section .data
     msg db "Hello World!", 10, 0
-    sixteen_bit_address db "0123456789abcdef"
     float1 dd 3.14159
-    constant db 1000000.0
+    ten_milly dd 1000000
     myPoint:
         db 48
         dd 10
+
+section .bss
+    float_value resd 1
 
 section .text
     global _start1
@@ -20,23 +25,6 @@ section .text
     extern main
 
 _start1:
-    lea rax, [rel msg]
-    printf "s", rax
-    lea rax, 1234
-    printf "d", rax
-    print 10
-    lea r10, [rel msg]
-    printf "p", r10
-    ; print 10
-    ; mov rax, 10
-    ; printf "d", rax
-    ; lea rax, [rel msg]
-    ; printWord rax
-    exit 0
     movss xmm0, [rel float1]
-
-    cvttss2si rax, xmm0
-    printf "d", rax
-    push 1000000
-
+    call print_Float
     exit 0

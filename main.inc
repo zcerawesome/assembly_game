@@ -14,6 +14,11 @@
     pop rbp
 %endmacro
 
+%macro printlnf 2
+    printf %1, %2
+    print 10
+%endmacro
+
 %macro printf 2
     saverbp
     push %2
@@ -28,6 +33,7 @@
     je %%_printU
     cmp dl, "p" ; print memory_address in base 16, regular way
     je %%_printAddy
+
 %%_printword:
     printWord rax  ; simply prints the pointer value
     ; jmp %%_printNum
@@ -141,3 +147,16 @@
     pop rdi
     pop rax
 %endmacro
+print_Float:
+    cvttss2si rax, xmm0
+    printf "d", rax
+    print "."
+    roundss xmm1, xmm0, 1
+    subss xmm0, xmm1
+    movss xmm1, [rel ten_milly]
+
+    mulss xmm0, xmm1
+    movq rax, xmm0
+    printlnf "d", rax
+
+    ret
