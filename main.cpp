@@ -3,7 +3,7 @@
 extern "C" void add_numbers(int a)
 {
     fflush(stdout);
-    std::cout << "hell" << a << std::endl;
+    std::cout << "" << a << std::endl;
     printf("Mic check");
 }
 

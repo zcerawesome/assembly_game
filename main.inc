@@ -4,21 +4,33 @@
     syscall
 %endmacro
 
-%macro printf 2
+%macro saverbp 0
     push rbp
     mov rbp, rsp
-    mov al, %1
-    cmp al, "s" ;Print string
+%endmacro
+
+%macro poprbp 0
+    mov rsp, rbp
+    pop rbp
+%endmacro
+
+%macro printf 2
+    saverbp
+    push %2
+    mov rax, [rbp - 8]
+    mov dl, %1
+    cmp dl, "s" ;Print string
     je %%_printword
     mov rsi, 0
-    cmp al, "d" ; print signed value
+    cmp dl, "d" ; print signed value
     je %%_printNum
-    cmp al, "u" ; print unsigned value
+    cmp dl, "u" ; print unsigned value
     je %%_printU
-    cmp al, "p" ; print memory_address in base 16, regular way
+    cmp dl, "p" ; print memory_address in base 16, regular way
     je %%_printAddy
 %%_printword:
-    printWord %2 ; simply prints the pointer value
+    printWord rax  ; simply prints the pointer value
+    ; jmp %%_printNum
     jmp %%_end
 
 %%_printU:
@@ -26,7 +38,6 @@
     jmp %%_printNum
 
 %%_printNum:
-    mov rax, %2 ; moves the value into rax
     cmp rax, 0 ; if greater than 0 or unsigned, start regular printing
     jge %%_start_process
     cmp rsi, "+" 
@@ -58,17 +69,16 @@
     
 %%_printAddy:
     mov rsi, 16                     ; Moves the count to rsi (mem addresses are 16 digits in hex)
-    mov rax, %2
     dec rsp
     mov byte [rsp], 0 ; holds the remainder value, rbp is pointing right underneath
 %%_divide_loop:
-    mov rdx, 0                      ; divides by 16
+    xor rdx, rdx                    ; Set rdx to 0 and divide by 10 with rdi
     mov rdi, 16
     div rdi
 
-    mov byte [rbp-1], dl            ; Puts the dl value into the "local variable"
+    mov byte [rbp-9], dl            ; Puts the dl value into the "local variable"
     lea rdx, [rel sixteen_bit_address] ; puts memory address of sixteen_bit_address to rdx then add by offset in rbp-1
-    add rdx, [rbp -1]
+    add dl, [rbp - 9]
 
     mov rdx, [rdx]                  ; moves the values its pointing to to itself
 
@@ -84,8 +94,7 @@
     printWord rsi
     jmp %%_end
 %%_end:
-    mov rsp, rbp                     ; pops off the base to the og position
-    pop rbp
+    poprbp                   ; pops off the base to the og position
 %endmacro
 
 
@@ -100,6 +109,7 @@
 %endmacro
 
 %macro printWord 1
+    push %1
     mov rax, %1
     sub rsp, 4          ; pushes 4 byte 0 to stack
     mov dword [rsp], 0  
@@ -112,8 +122,22 @@
 %%_print:
     mov rax, 1
     mov rdi, 1
-    mov rsi, %1
+    mov rsi, [rsp + 4]
     mov edx, [rsp]      ; moves value to edx and offsets the 4 byte rsp
-    add rsp, 4
+    add rsp, 12
     syscall
+%endmacro
+
+%macro saveTopFour 0
+    push rax
+    push rdi
+    push rsi
+    push rdx
+%endmacro
+
+%macro getTopFour 0
+    pop rdx
+    pop rsi
+    pop rdi
+    pop rax
 %endmacro

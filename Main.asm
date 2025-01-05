@@ -6,9 +6,10 @@ struc Point
 endstruc
 
 section .data
-    ; msg db "Hello World!", 10, 0
+    msg db "Hello World!", 10, 0
     sixteen_bit_address db "0123456789abcdef"
-    format db "%p", 10, 0
+    float1 dd 3.14159
+    constant db 1000000.0
     myPoint:
         db 48
         dd 10
@@ -19,15 +20,23 @@ section .text
     extern main
 
 _start1:
-    ; call main
-    ; mov rdi, 10
-    ; call add_numbers
-    ; mov rax, [rel myPoint + Point.x]
-    ; print rax
-    ; print 10
-    ; printf "d", -12583
-    lea rax, [rel sixteen_bit_address]
-    printf "p", rax
+    lea rax, [rel msg]
+    printf "s", rax
+    lea rax, 1234
+    printf "d", rax
     print 10
-    printf "u", -1
+    lea r10, [rel msg]
+    printf "p", r10
+    ; print 10
+    ; mov rax, 10
+    ; printf "d", rax
+    ; lea rax, [rel msg]
+    ; printWord rax
+    exit 0
+    movss xmm0, [rel float1]
+
+    cvttss2si rax, xmm0
+    printf "d", rax
+    push 1000000
+
     exit 0
