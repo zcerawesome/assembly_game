@@ -28,25 +28,6 @@ section .text
     global sin_a
     global cos_a
 
-cos_a:
-    add rdi, 90
-    call sin_a
-    ret
-
-sin_a:
-;Goal, index into the sin array to get the value for the cpp program to use
-    xor rdx, rdx
-    mov rax, rdi
-    mov rdi, 360
-    div rdi
-    imul rax, rdx, 4
-    lea rdi, [rel sin_list]
-    add rax, rdi
-    mov rax, [rax]
-    push rax
-    movss xmm0, [rsp]
-    pop rax
-    ret
 
 mul_float_by_two:
     movss xmm1, dword [rel two]
