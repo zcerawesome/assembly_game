@@ -14,95 +14,6 @@
     pop rbp
 %endmacro
 
-%macro printlnf 2
-    printf %1, %2
-    print 10
-%endmacro
-
-%macro printf 2
-    saverbp
-    push %2
-    mov rax, [rbp - 8]
-    mov dl, %1
-    cmp dl, "s" ;Print string
-    je %%_printword
-    mov rsi, 0
-    cmp dl, "d" ; print signed value
-    je %%_printNum
-    cmp dl, "u" ; print unsigned value
-    je %%_printU
-    cmp dl, "p" ; print memory_address in base 16, regular way
-    je %%_printAddy
-
-%%_printword:
-    printWord rax  ; simply prints the pointer value
-    ; jmp %%_printNum
-    jmp %%_end
-
-%%_printU:
-    mov rsi, "+" ; if unsigned, allocate "-" to rsi to tell the code not to count the first bit as negative if it is 1
-    jmp %%_printNum
-
-%%_printNum:
-    cmp rax, 0 ; if greater than 0 or unsigned, start regular printing
-    jge %%_start_process
-    cmp rsi, "+" 
-    je %%_start_process
-    mov rsi, "-" ; hold the rsi to push later
-    neg rax      ; set the rax to "positive" to print properly
-%%_start_process:
-    dec rsp                         ; set null character at the beginning
-    mov byte [rsp], 0
-%%_diving:
-    xor rdx, rdx                    ; Set rdx to 0 and divide by 10 with rdi
-    mov rdi, 10
-    div rdi
-    add rdx, 48
-    dec rsp
-    mov byte [rsp], dl              ; add 48 for ascii and add to stack by a byte
-    cmp rax, 0
-    jne %%_diving
-    cmp rsi, "-"                    ; Checks if it is negative (it is found if negative earlier)
-    jne %%_start_printing_process
-    cmp rsi, "+"
-    jne %%_start_printing_process   ; Checks if it is unsigned
-    dec rsp
-    mov byte [rsp], "-"
-%%_start_printing_process:
-    lea rsi, [rsp]                  ; Loads rsp to rsi to print properly then ends
-    printWord rsi
-    jmp %%_end
-    
-%%_printAddy:
-    mov rsi, 16                     ; Moves the count to rsi (mem addresses are 16 digits in hex)
-    dec rsp
-    mov byte [rsp], 0 ; holds the remainder value, rbp is pointing right underneath
-%%_divide_loop:
-    xor rdx, rdx                    ; Set rdx to 0 and divide by 10 with rdi
-    mov rdi, 16
-    div rdi
-
-    mov byte [rbp-9], dl            ; Puts the dl value into the "local variable"
-    lea rdx, [rel sixteen_bit_address] ; puts memory address of sixteen_bit_address to rdx then add by offset in rbp-1
-    add dl, [rbp - 9]
-
-    mov rdx, [rdx]                  ; moves the values its pointing to to itself
-
-    dec rsp
-    mov [rsp], dl                   ; "pushes" to the stack
-
-    dec rsi
-    test rsi, rsi
-    jnz %%_divide_loop               ; Check if done
-    sub rsp, 2                       ; stores the 0x hex identifier
-    mov word [rsp], "0x"
-    lea rsi, [rsp]
-    printWord rsi
-    jmp %%_end
-%%_end:
-    poprbp                   ; pops off the base to the og position
-%endmacro
-
 
 %macro print 1                       
     push %1                             ; prints a singular value (pushes to stack b/c pointer is necessary)
@@ -147,9 +58,29 @@
     pop rdi
     pop rax
 %endmacro
-print_Float:
+
+printlnf:
+    call printf
+    print 10
+    ret
+
+printf:
+    saverbp
+    cmp rdi, "s" ;Print string
+    je _print_word
+    mov rsi, 0
+    cmp rdi, "d" ; print signed value
+    je _printNum
+    cmp rdi, "u" ; print unsigned value
+    je _printU
+    cmp rdi, "p" ; print memory_address in base 16, regular way
+    je _printAddy
+    cmp rdi, "f"
+    je _printing_float
+_printing_float:
     cvttss2si rax, xmm0
-    printf "d", rax
+    mov rdi, "d"
+    call printf 
     print "."
     roundss xmm1, xmm0, 1
     subss xmm0, xmm1
@@ -157,6 +88,74 @@ print_Float:
 
     mulss xmm0, xmm1
     movq rax, xmm0
-    printlnf "d", rax
+    mov rdi, "d"
+    call printf
+    jmp _end
+_print_word:
+    printWord rax  ; simply prints the pointer value
+    ; jmp %%_printNum
+    jmp _end
 
+_printU:
+    mov rsi, "+" ; if unsigned, allocate "-" to rsi to tell the code not to count the first bit as negative if it is 1
+    jmp _printNum
+
+_printNum:
+    cmp rax, 0 ; if greater than 0 or unsigned, start regular printing
+    jge _start_process
+    cmp rsi, "+" 
+    je _start_process
+    mov rsi, "-" ; hold the rsi to push later
+    neg rax      ; set the rax to "positive" to print properly
+_start_process:
+    dec rsp                         ; set null character at the beginning
+    mov byte [rsp], 0
+_diving:
+    xor rdx, rdx                    ; Set rdx to 0 and divide by 10 with rdi
+    mov rdi, 10
+    div rdi
+    add rdx, 48
+    dec rsp
+    mov byte [rsp], dl              ; add 48 for ascii and add to stack by a byte
+    cmp rax, 0
+    jne _diving
+    cmp rsi, "-"                    ; Checks if it is negative (it is found if negative earlier)
+    jne _start_printing_process
+    cmp rsi, "+"
+    jne _start_printing_process   ; Checks if it is unsigned
+    dec rsp
+    mov byte [rsp], "-"
+_start_printing_process:
+    lea rsi, [rsp]                  ; Loads rsp to rsi to print properly then ends
+    printWord rsi
+    jmp _end
+    
+_printAddy:
+    mov rsi, 16                     ; Moves the count to rsi (mem addresses are 16 digits in hex)
+    dec rsp
+    mov byte [rsp], 0 ; holds the remainder value, rbp is pointing right underneath
+_divide_loop:
+    xor rdx, rdx                    ; Set rdx to 0 and divide by 10 with rdi
+    mov rdi, 16
+    div rdi
+
+    mov byte [rbp-1], dl            ; Puts the dl value into the "local variable"
+    lea rdx, [rel sixteen_bit_address] ; puts memory address of sixteen_bit_address to rdx then add by offset in rbp-1
+    add dl, [rbp - 1]
+
+    mov rdx, [rdx]                  ; moves the values its pointing to to itself
+
+    dec rsp
+    mov [rsp], dl                   ; "pushes" to the stack
+
+    dec rsi
+    test rsi, rsi
+    jnz _divide_loop               ; Check if done
+    sub rsp, 2                       ; stores the 0x hex identifier
+    mov word [rsp], "0x"
+    lea rsi, [rsp]
+    printWord rsi
+    jmp _end
+_end:
+    poprbp                   ; pops off the base to the og position
     ret
