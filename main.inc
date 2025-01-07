@@ -60,12 +60,14 @@
 %endmacro
 
 printlnf:
-    call printf
+    call printff
     print 10
     ret
 
-printf:
+printff:
     saverbp
+    mov rax, rdi
+    mov rdi, rsi
     cmp rdi, "s" ;Print string
     je _print_word
     mov rsi, 0
@@ -80,7 +82,7 @@ printf:
 _printing_float:
     cvttss2si rax, xmm0
     mov rdi, "d"
-    call printf 
+    call printff 
     print "."
     roundss xmm1, xmm0, 1
     subss xmm0, xmm1
@@ -89,7 +91,7 @@ _printing_float:
     mulss xmm0, xmm1
     movq rax, xmm0
     mov rdi, "d"
-    call printf
+    call printff
     jmp _end
 _print_word:
     printWord rax  ; simply prints the pointer value
