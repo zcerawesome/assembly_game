@@ -18,6 +18,14 @@ section .rodata
     PI dd 3.14159
     Exit_Msg db "Exiting now", 0xa, 0
     gravity dd 1
+
+    global Player_Height
+    global Player_Width
+    Player_Height dd 8
+    Player_Width dd 8
+    
+    One_point dd 1.0
+
 section .data
     global Player_Pos
     global Player_Velocity
@@ -37,6 +45,17 @@ section .text
     global printff
     global printt
     global keyboard
+    global display
+    
+    extern glClear
+
+display:
+    saverbp
+    mov rdi, 0x00004000
+    call [rel glClear wrt ..got]
+    poprbp
+    ret
+
 
 testing:
     mov dword [rsp + 24], 5

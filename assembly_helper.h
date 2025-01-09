@@ -9,6 +9,9 @@ extern "C"
     float cos_a(int degree);
     extern Point Player_Pos;
     extern Point Player_Velocity;
+    extern int Player_Height;
+    extern int Player_Width;
+    void display();
     void printff(void* input, char inp);
     void printt(char inp);
     void keyboard(unsigned char key, int x, int y);

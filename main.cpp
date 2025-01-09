@@ -9,28 +9,29 @@
 int global_degree = 0;
 
 
-void display()
-{
-    glClear(GL_COLOR_BUFFER_BIT);  // Clear the color buffer
-    // Set the drawing color to red (in RGB)
-    glColor3f(1.0f, 0.0f, 0.0f);
-    // Begin drawing a polygon (in this case, a square)
-    glBegin(GL_QUADS);  
-    /*glVertex2f(-0.75f, -1 * cos_a(global_degree));  // Bottom-left corner
-    glVertex2f( 0.75f, -1 * cos_a(global_degree));  // Bottom-right corner
-    glVertex2f( 0.5f, 1 * cos_a(global_degree));  // Top-right corner
-    glVertex2f(-0.5f, 1 * cos_a(global_degree));  // Top-left corner*/
+// void display()
+// {
+//     glClear(GL_COLOR_BUFFER_BIT);  // Clear the color buffer
+//     // Set the drawing color to red (in RGB)
+//     glColor3f(1.0f, 0.0f, 0.0f);
+//     // Begin drawing a polygon (in this case, a square)
+//     glBegin(GL_QUADS);  
+//     /*glVertex2f(-0.75f, -1 * cos_a(global_degree));  // Bottom-left corner
+//     glVertex2f( 0.75f, -1 * cos_a(global_degree));  // Bottom-right corner
+//     glVertex2f( 0.5f, 1 * cos_a(global_degree));  // Top-right corner
+//     glVertex2f(-0.5f, 1 * cos_a(global_degree));  // Top-left corner*/
 
-    glEnd();
+//     glEnd();
     
-    glColor3f(0,0,0);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-0.3,0.3);
-    glVertex2f(0.1,0.3);
-    glVertex2f(0.3,-0.3);
-    glEnd();
-    glFlush();
-}
+//     glColor3f(0,0,0);
+//     glBegin(GL_TRIANGLES);
+//     glVertex2f(-0.3,0.3);
+//     glVertex2f(0.1,0.3);
+//     glVertex2f(0.3,-0.3);
+//     glEnd();
+//     glFlush();
+//     std::cout << Player_Height << std::endl;
+// }
 
 
 // void init()
