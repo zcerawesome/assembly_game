@@ -4,6 +4,47 @@
     syscall
 %endmacro
 
+buildVertex2f:
+    push rdi
+    push rsi
+    mov rdi, [rel glut_screen_width]
+    call [rel glutGet wrt ..got]
+    mov rsi, [rsp - 8]
+    cvtsi2ss xmm0, rsi
+    xor rdx, rdx
+    mov rdi, 2
+    div rdi
+    cvtsi2ss xmm1, rax
+    divss xmm0, xmm1
+
+    movss xmm1, [rel neg_one]
+    addss xmm0, xmm1
+   
+    
+    sub rsp, 16
+    movq [rsp], xmm0
+    mov rdi, [rel glut_screen_height]
+    call [rel glutGet wrt ..got]
+    movq xmm0, [rsp]
+    add rsp, 16
+
+    mov rsi, [rsp]
+    cvtsi2ss xmm1, rsi
+    xor rdx, rdx
+    mov rdi, 2
+    div rdi
+    movq rdx, xmm0
+    cvtsi2ss xmm0, rax
+    divss xmm1, xmm0
+    movss xmm0, [rel neg_one]
+    addss xmm1, xmm0
+    movq xmm0, rdx
+
+    call [rel glVertex2f wrt ..got]
+    pop rsi
+    pop rdi
+    ret 
+
 %macro saverbp 0
     push rbp
     mov rbp, rsp
@@ -80,8 +121,8 @@ printff:
     cmp rdi, "f"
     je _printing_float
 _printing_float:
-    cvttss2si rax, xmm0
-    mov rdi, "d"
+    cvttss2si rdi, xmm0
+    mov rsi, "d"
     call printff 
     print "."
     roundss xmm1, xmm0, 1
@@ -89,8 +130,8 @@ _printing_float:
     movss xmm1, [rel ten_milly]
 
     mulss xmm0, xmm1
-    movq rax, xmm0
-    mov rdi, "d"
+    movq rdi, xmm0
+    mov rsi, "d"
     call printff
     jmp _end
 _print_word:
@@ -173,11 +214,11 @@ sin_a:
     mov rax, rdi
     mov rdi, 360
     div rdi
-    imul rax, rdx, 4
+    imul rax, rdx, 4 ;ints are offset by 4 bytes
     lea rdi, [rel sin_list]
     add rax, rdi
     mov rax, [rax]
     push rax
     movss xmm0, [rsp]
-    pop rax
+    pop rdi
     ret

@@ -1,5 +1,6 @@
 %include "main.inc"
 %include "sin_values.inc"
+%include "gl_imports.inc"
 
 struc Point
     .x: resd 1
@@ -25,8 +26,10 @@ section .rodata
     Player_Width dd 8
     
     One_point dd 1.0
-
+    neg_one dd -1.0
+    Zero_point dd 0.0
 section .data
+    
     global Player_Pos
     global Player_Velocity
     Player_Pos:
@@ -46,13 +49,82 @@ section .text
     global printt
     global keyboard
     global display
-    
-    extern glClear
+    global handleSpecialKeypress
+
+    glImports   
 
 display:
     saverbp
     mov rdi, 0x00004000
     call [rel glClear wrt ..got]
+    movss xmm0, [rel One_point]
+    movss xmm1, [rel Zero_point]
+    movss xmm2, [rel Zero_point]
+    call [rel glColor3f wrt ..got]
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
+
+
+    ; mov rdi, [rel global_degree]
+    ; call sin_a
+    ; movq rax, xmm0
+    ; neg rax
+    ; movq xmm1, rax
+    mov rdi, [rel global_degree]
+    call sin_a
+    mulss xmm0, [rel neg_one]
+    movss xmm1, xmm0
+    mov rax, 0xBF400000 
+    movq xmm0, rax
+    call [rel glVertex2f wrt ..got]
+
+
+    ; mov rdi, [rel global_degree]
+    ; call sin_a
+    ; movq rax, xmm0
+    ; neg rax
+    ; movq xmm1, rax
+
+    mov rdi, [rel global_degree]
+    call cos_a
+    mulss xmm0, [rel neg_one]
+    mov rdi, 540
+    cvtsi2ss xmm1, rdi
+    mulss xmm0, xmm1
+    movq rdi, xmm0
+
+    mov rsi, rdi
+    mov rdi, 1680
+    call buildVertex2f
+    
+    ; mov rdi, [rel global_degree]
+    ; call sin_a
+    ; movq rax, xmm0
+    ; movq xmm1, rax
+    mov rdi, [rel global_degree]
+    call sin_a
+    movss xmm1, xmm0
+    mov rax, 0x3F000000
+    movq xmm0, rax
+    call [rel glVertex2f wrt ..got]
+
+
+    ; mov rdi, [rel global_degree]
+    ; call sin_a
+    ; movq rax, xmm0
+    ; movq xmm1, rax
+    mov rdi, [rel global_degree]
+    call sin_a
+    movss xmm1, xmm0
+    mov rax, 0xBF000000
+    movq xmm0, rax
+    call [rel glVertex2f wrt ..got]
+    
+    call [rel glEnd wrt ..got]
+    call [rel glFlush wrt ..got]
+
+    lea rax, [rel global_degree]
+    add dword [rax], 1
     poprbp
     ret
 
@@ -69,6 +141,16 @@ printt:
     print rdi
     ret
 
+handleSpecialKeypress:
+    cmp rdi, 0x0065
+    jne _Special_key_section1
+    print "a" 
+_Special_key_section1:
+_Special_key_section2:
+_Special_key_section3:
+_Special_key_section4:
+    ret
+
 keyboard:
     cmp rdi, 27
     jne _keyboard_section_1
@@ -77,7 +159,7 @@ keyboard:
     call printff
     exit 0
 _keyboard_section_1:
-    
+
 _keyboard_section_2:
 _keyboard_section_3:
 _keyboard_section_4:
