@@ -1,7 +1,7 @@
 Requirements:
-linux machine
-NASM
-g++
+linux machine,
+NASM,
+g++,
 glut installed
 
 How to Compile:
