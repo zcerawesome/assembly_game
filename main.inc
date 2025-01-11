@@ -4,46 +4,13 @@
     syscall
 %endmacro
 
-buildVertex2f:
-    push rdi
-    push rsi
-    mov rdi, [rel glut_screen_width]
-    call [rel glutGet wrt ..got]
-    mov rsi, [rsp - 8]
-    cvtsi2ss xmm0, rsi
-    xor rdx, rdx
-    mov rdi, 2
-    div rdi
-    cvtsi2ss xmm1, rax
-    divss xmm0, xmm1
-
-    movss xmm1, [rel neg_one]
-    addss xmm0, xmm1
-   
-    
-    sub rsp, 16
-    movq [rsp], xmm0
-    mov rdi, [rel glut_screen_height]
-    call [rel glutGet wrt ..got]
-    movq xmm0, [rsp]
-    add rsp, 16
-
-    mov rsi, [rsp]
-    cvtsi2ss xmm1, rsi
-    xor rdx, rdx
-    mov rdi, 2
-    div rdi
-    movq rdx, xmm0
-    cvtsi2ss xmm0, rax
-    divss xmm1, xmm0
-    movss xmm0, [rel neg_one]
-    addss xmm1, xmm0
-    movq xmm0, rdx
-
+%macro buildVertex2f 2
+    mov rdi, %1
+    movq xmm0, rdi
+    mov rdi, %2
+    movq xmm1, rdi
     call [rel glVertex2f wrt ..got]
-    pop rsi
-    pop rdi
-    ret 
+%endmacro
 
 %macro saverbp 0
     push rbp

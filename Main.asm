@@ -88,14 +88,8 @@ display:
     mov rdi, [rel global_degree]
     call cos_a
     mulss xmm0, [rel neg_one]
-    mov rdi, 540
-    cvtsi2ss xmm1, rdi
-    mulss xmm0, xmm1
-    movq rdi, xmm0
-
-    mov rsi, rdi
-    mov rdi, 1680
-    call buildVertex2f
+    movq rax, xmm0
+    buildVertex2f 0x3F400000, rax
     
     ; mov rdi, [rel global_degree]
     ; call sin_a
