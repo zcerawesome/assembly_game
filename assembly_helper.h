@@ -11,8 +11,8 @@ extern "C"
     // extern int global_degree;
     extern Point Player_Pos;
     extern Point Player_Velocity;
-    extern int Player_Height;
-    extern int Player_Width;
+    extern float Player_Height;
+    extern float Player_Width;
     void display();
     void printff(void* input, char inp);
     void printt(char inp);

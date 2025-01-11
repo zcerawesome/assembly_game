@@ -6,9 +6,22 @@
 
 %macro buildVertex2f 2
     mov rdi, %1
-    movq xmm0, rdi
+    cvtsi2ss xmm0, rdi
+    mov rsi, 960
+    cvtsi2ss xmm1, rsi
+    divss xmm0, xmm1
+    movss xmm1, [rel neg_one]
+    addss xmm0, xmm1
+
     mov rdi, %2
-    movq xmm1, rdi
+    cvtsi2ss xmm1, rdi
+    movq rdi, xmm0
+    mov rsi, 540
+    cvtsi2ss xmm0, rsi
+    divss xmm1, xmm0
+    movss xmm0, [rel neg_one]
+    addss xmm1, xmm0
+    movq xmm0, rdi
     call [rel glVertex2f wrt ..got]
 %endmacro
 

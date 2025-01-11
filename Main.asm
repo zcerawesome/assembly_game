@@ -22,6 +22,7 @@ section .rodata
 
     global Player_Height
     global Player_Width
+
     Player_Height dd 8
     Player_Width dd 8
     
@@ -88,8 +89,13 @@ display:
     mov rdi, [rel global_degree]
     call cos_a
     mulss xmm0, [rel neg_one]
-    movq rax, xmm0
-    buildVertex2f 0x3F400000, rax
+    movss xmm1, [rel neg_one]
+    subss xmm0, xmm1
+    mov rax, 540
+    cvtsi2ss xmm1, rax
+    mulss xmm0, xmm1
+    cvttss2si rax, xmm0
+    buildVertex2f 1680, rax
     
     ; mov rdi, [rel global_degree]
     ; call sin_a
