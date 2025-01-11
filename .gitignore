@@ -1,0 +1,8 @@
+# ignore object files
+*.o
+# ignore excecutables
+build.sh
+Main
+# .gitignore
+temp.py
+*.s
