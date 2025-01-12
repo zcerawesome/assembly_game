@@ -5,6 +5,8 @@
 struc Point
     .x: resd 1
     .y: resd 1
+    .Width: resd 1
+    .Height: resd 1
 endstruc
 
 
@@ -30,12 +32,20 @@ section .rodata
     neg_one dd -1.0
     Zero_point dd 0.0
 section .data
-    
+    key_jump_table:
+        dq _Special_key_section1, _Special_key_section2, _Special_key_section3, _Special_key_section4
+    release_jump_table:
+        dq _Special_release_section1, _Special_release_section2, _Special_release_section3, _Special_release_section4
+
+    Player_direction dd 0
+
     global Player_Pos
     global Player_Velocity
     Player_Pos:
-        dd 0
-        dd 4
+        dd 960
+        dd 540
+        dd 8
+        dd 8
     Player_Velocity:
         dd 0
         dd 0
@@ -46,11 +56,10 @@ section .bss
 section .text
     global sin_a
     global cos_a
-    global printff
-    global printt
     global keyboard
     global display
     global handleSpecialKeypress
+    global handleSpecialKeyRelease 
 
     glImports   
 
@@ -65,60 +74,18 @@ display:
     mov rdi, 7
     call [rel glBegin wrt ..got]
 
-
-    ; mov rdi, [rel global_degree]
-    ; call sin_a
-    ; movq rax, xmm0
-    ; neg rax
-    ; movq xmm1, rax
-    mov rdi, [rel global_degree]
-    call sin_a
-    mulss xmm0, [rel neg_one]
-    movss xmm1, xmm0
-    mov rax, 0xBF400000 
-    movq xmm0, rax
-    call [rel glVertex2f wrt ..got]
-
-
-    ; mov rdi, [rel global_degree]
-    ; call sin_a
-    ; movq rax, xmm0
-    ; neg rax
-    ; movq xmm1, rax
-
-    mov rdi, [rel global_degree]
-    call cos_a
-    mulss xmm0, [rel neg_one]
-    movss xmm1, [rel neg_one]
-    subss xmm0, xmm1
-    mov rax, 540
-    cvtsi2ss xmm1, rax
-    mulss xmm0, xmm1
-    cvttss2si rax, xmm0
-    buildVertex2f 1680, rax
     
-    ; mov rdi, [rel global_degree]
-    ; call sin_a
-    ; movq rax, xmm0
-    ; movq xmm1, rax
-    mov rdi, [rel global_degree]
-    call sin_a
-    movss xmm1, xmm0
-    mov rax, 0x3F000000
-    movq xmm0, rax
-    call [rel glVertex2f wrt ..got]
 
+    lea rax, [rel Player_Pos + Point.x]
+    mov edx, [rel Player_Velocity + Point.x]
+    add [rax], edx
+    mov edi, [rel Player_Pos + Point.x]
 
-    ; mov rdi, [rel global_degree]
-    ; call sin_a
-    ; movq rax, xmm0
-    ; movq xmm1, rax
-    mov rdi, [rel global_degree]
-    call sin_a
-    movss xmm1, xmm0
-    mov rax, 0xBF000000
-    movq xmm0, rax
-    call [rel glVertex2f wrt ..got]
+    lea rax, [rel Player_Pos + Point.y]
+    mov edx, [rel Player_Velocity + Point.y]
+    add [rax], edx
+
+    Build_That_Square Player_Pos
     
     call [rel glEnd wrt ..got]
     call [rel glFlush wrt ..got]
@@ -128,27 +95,57 @@ display:
     poprbp
     ret
 
-
-testing:
-    mov dword [rsp + 24], 5
-    mov dword [rsp + 20], 4
-    mov dword [rsp + 16], 3
-    mov dword [rsp + 12], 2
-    mov dword [rsp + 8], 1
-    ret
-
-printt:
-    print rdi
+handleSpecialKeyRelease:
+    sub rdi, 0x0064 ; Used for the arrow keys
+    cmp rdi, 0
+    jl _End
+    cmp rdi, 3
+    jg _End
+    lea rax, [rel release_jump_table]
+    jmp qword [rax + rdi * 8]
+_Special_release_section1:
+    lea rax, [rel Player_Velocity + Point.x]
+    mov dword [rax], 0
+    jmp _End
+_Special_release_section2:
+    lea rax, [rel Player_Velocity + Point.y]
+    mov dword [rax], 0
+    jmp _End
+_Special_release_section3:
+    lea rax, [rel Player_Velocity + Point.x]
+    mov dword [rax], 0
+    jmp _End
+_Special_release_section4:
+    lea rax, [rel Player_Velocity + Point.y]
+    mov dword [rax], 0
+    jmp _End
     ret
 
 handleSpecialKeypress:
-    cmp rdi, 0x0065
-    jne _Special_key_section1
-    print "a" 
-_Special_key_section1:
-_Special_key_section2:
-_Special_key_section3:
-_Special_key_section4:
+    sub rdi, 0x0064 ; Used for the arrow keys
+    cmp rdi, 0
+    jl _End
+    cmp rdi, 3
+    jg _End
+    lea rax, [rel key_jump_table]
+    jmp qword [rax + rdi * 8]
+_Special_key_section1: ; Left
+    lea rax, [rel Player_Velocity + Point.x]
+    mov dword [rax], -4
+    jmp _End
+_Special_key_section2: ; Up
+    lea rax, [rel Player_Velocity + Point.y]
+    mov dword [rax], 4
+    jmp _End
+_Special_key_section3: ; Right
+    lea rax, [rel Player_Velocity + Point.x]
+    mov dword [rax], 4
+    jmp _End
+_Special_key_section4: ; Down
+    lea rax, [rel Player_Velocity + Point.y]
+    mov dword [rax], -4
+    jmp _End
+_End:
     ret
 
 keyboard:

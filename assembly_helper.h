@@ -18,6 +18,7 @@ extern "C"
     void printt(char inp);
     void keyboard(unsigned char key, int x, int y);
     void handleSpecialKeypress(int key, int x, int y);
+    void handleSpecialKeyRelease(int key, int x, int y);
 }
 
 

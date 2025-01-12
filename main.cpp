@@ -8,9 +8,6 @@
 
 
 int global_degree;
-int glut_screen_width = GLUT_WINDOW_WIDTH;
-int glut_screen_height = GLUT_WINDOW_HEIGHT;
-
 
 void displays()
 {
@@ -24,6 +21,11 @@ void displays()
     glVertex2f( 0.5f, 1 * cos_a(global_degree));  // Top-right corner
     glVertex2f(-0.5f, 1 * cos_a(global_degree));  // Top-left corner
     glEnd();
+    GLUT_KEY_LEFT;
+    GLUT_KEY_UP;
+    GLUT_KEY_RIGHT;
+    GLUT_KEY_DOWN;
+    
     // 
     // glColor3f(0,0,0);
     // glBegin(GL_TRIANGLES);
@@ -61,17 +63,21 @@ int main() {
     char* argv[] = {(char*)"my_program"};
     global_degree = 0;
     glutInit(&argc, argv);
+    Player_Pos.x = 960;
+    Player_Pos.y = 540;
 
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); // Set display mode (single buffer, RGB color)
     glutInitWindowSize(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT)); // Set window size (800x600 pixels)
     glutCreateWindow("Assembly Game"); // Create a window with a title
-
     // init();
     // Enter the GLUT event processing loop
     glutDisplayFunc(display);
     glutTimerFunc(0, timer, 0);
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(handleSpecialKeypress);
+    glutSpecialUpFunc(handleSpecialKeyRelease);
+    Player_Pos.Width = 8;
+    Player_Pos.Height = 8;
     glutMainLoop();
     return 0;
 }

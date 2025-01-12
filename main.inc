@@ -80,6 +80,34 @@
     pop rax
 %endmacro
 
+%macro Build_That_Square 1
+    ;Builds each corner
+    mov eax, [rel %1 + Point.x]
+    add eax, [rel %1 + Point.Width]
+    mov edx, [rel %1 + Point.y]
+    add edx, [rel %1 + Point.Height]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel %1 + Point.x]
+    sub eax, [rel %1 + Point.Width]
+    mov edx, [rel %1 + Point.y]
+    add edx, [rel %1 + Point.Height]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel %1 + Point.x]
+    sub eax, [rel %1 + Point.Width]
+    mov edx, [rel %1 + Point.y]
+    sub edx, [rel %1 + Point.Height]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel %1 + Point.x]
+    add eax, [rel %1 + Point.Width]
+    mov edx, [rel %1 + Point.y]
+    sub edx, [rel %1 + Point.Height]
+    buildVertex2f rax, rdx
+
+%endmacro
+
 printlnf:
     call printff
     print 10
