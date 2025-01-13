@@ -11,6 +11,8 @@ endstruc
 
 
 section .rodata
+    Player_Velocity:
+        db 0, 4
     sixteen_bit_address db "0123456789abcdef"
     sin_list:
         sin_values_whole
@@ -40,15 +42,14 @@ section .data
     Player_direction dd 0
 
     global Player_Pos
-    global Player_Velocity
+    ; global Player_Velocity
     Player_Pos:
         dd 960
         dd 540
         dd 8
         dd 8
-    Player_Velocity:
-        dd 0
-        dd 0
+    
+    Player_Velocity_Bool dd 0
 
 section .bss
     float_value resd 1
@@ -74,15 +75,41 @@ display:
     mov rdi, 7
     call [rel glBegin wrt ..got]
 
-    
+    xor rbx, rbx
+    xor rcx, rcx
+    lea rdx, [rel Player_Velocity]
+
+    lea rax, [rel Player_Velocity_Bool]
+    movzx rax, byte [rax]
+    add rdx, rax
+    sub rbx, [rdx]
+    sub rdx, rax
+
+    lea rax, [rel Player_Velocity_Bool + 1]
+    movzx rax, byte [rax]
+    add rdx, rax
+    add rcx, [rdx]
+    sub rdx, rax
+
+    lea rax, [rel Player_Velocity_Bool + 2]
+    movzx rax, byte [rax]
+    add rdx, rax
+    add rbx, [rdx]
+    sub rdx, rax
+
+    lea rax, [rel Player_Velocity_Bool + 3]
+    movzx rax, byte [rax]
+    add rdx, rax
+    sub rcx, [rdx]
+    sub rdx, rax
 
     lea rax, [rel Player_Pos + Point.x]
-    mov edx, [rel Player_Velocity + Point.x]
+    mov edx, ebx
     add [rax], edx
     mov edi, [rel Player_Pos + Point.x]
 
     lea rax, [rel Player_Pos + Point.y]
-    mov edx, [rel Player_Velocity + Point.y]
+    mov edx, ecx
     add [rax], edx
 
     Build_That_Square Player_Pos
@@ -96,6 +123,7 @@ display:
     ret
 
 handleSpecialKeyRelease:
+    ret
     sub rdi, 0x0064 ; Used for the arrow keys
     cmp rdi, 0
     jl _End
@@ -130,20 +158,20 @@ handleSpecialKeypress:
     lea rax, [rel key_jump_table]
     jmp qword [rax + rdi * 8]
 _Special_key_section1: ; Left
-    lea rax, [rel Player_Velocity + Point.x]
-    mov dword [rax], -4
+    lea rax, [rel Player_Velocity_Bool]
+    mov byte [rax], 1
     jmp _End
 _Special_key_section2: ; Up
-    lea rax, [rel Player_Velocity + Point.y]
-    mov dword [rax], 4
+    lea rax, [rel Player_Velocity_Bool + 1]
+    mov byte [rax], 1
     jmp _End
 _Special_key_section3: ; Right
-    lea rax, [rel Player_Velocity + Point.x]
-    mov dword [rax], 4
+    lea rax, [rel Player_Velocity_Bool + 2]
+    mov byte [rax], 1
     jmp _End
 _Special_key_section4: ; Down
-    lea rax, [rel Player_Velocity + Point.y]
-    mov dword [rax], -4
+    lea rax, [rel Player_Velocity_Bool + 3]
+    mov byte [rax], 1
     jmp _End
 _End:
     ret

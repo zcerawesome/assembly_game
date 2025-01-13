@@ -75,7 +75,7 @@ int main() {
     glutTimerFunc(0, timer, 0);
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(handleSpecialKeypress);
-    glutSpecialUpFunc(handleSpecialKeyRelease);
+    // glutSpecialUpFunc(handleSpecialKeyRelease);
     Player_Pos.Width = 8;
     Player_Pos.Height = 8;
     glutMainLoop();
