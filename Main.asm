@@ -75,42 +75,48 @@ display:
     mov rdi, 7
     call [rel glBegin wrt ..got]
 
-    xor rbx, rbx
-    xor rcx, rcx
+    ; mov rdi, 0
+    ; sub rdi, 4
+    ; mov rsi, "d"
+    ; call printlnf
+    ; exit 0
+
+    xor r10d, r10d ; Horizantle
+    xor r9d, r9d ; Verticle
+
     lea rdx, [rel Player_Velocity]
 
     lea rax, [rel Player_Velocity_Bool]
     movzx rax, byte [rax]
     add rdx, rax
-    sub rbx, [rdx]
+    sub r10b, byte [rdx]
     sub rdx, rax
 
     lea rax, [rel Player_Velocity_Bool + 1]
     movzx rax, byte [rax]
     add rdx, rax
-    add rcx, [rdx]
+    add r9b, byte [rdx]
     sub rdx, rax
 
     lea rax, [rel Player_Velocity_Bool + 2]
     movzx rax, byte [rax]
     add rdx, rax
-    add rbx, [rdx]
+    add r10b, byte [rdx]
     sub rdx, rax
 
     lea rax, [rel Player_Velocity_Bool + 3]
     movzx rax, byte [rax]
     add rdx, rax
-    sub rcx, [rdx]
+    sub r9b, byte [rdx]
     sub rdx, rax
 
     lea rax, [rel Player_Pos + Point.x]
-    mov edx, ebx
-    add [rax], edx
-    mov edi, [rel Player_Pos + Point.x]
+    movsx r10d, r10b
+    add [rax], r10d
 
     lea rax, [rel Player_Pos + Point.y]
-    mov edx, ecx
-    add [rax], edx
+    movsx r9d, r9b
+    add [rax], r9d
 
     Build_That_Square Player_Pos
     
@@ -123,7 +129,6 @@ display:
     ret
 
 handleSpecialKeyRelease:
-    ret
     sub rdi, 0x0064 ; Used for the arrow keys
     cmp rdi, 0
     jl _End
@@ -132,20 +137,20 @@ handleSpecialKeyRelease:
     lea rax, [rel release_jump_table]
     jmp qword [rax + rdi * 8]
 _Special_release_section1:
-    lea rax, [rel Player_Velocity + Point.x]
-    mov dword [rax], 0
+    lea rax, [rel Player_Velocity_Bool]
+    mov byte [rax], 0
     jmp _End
 _Special_release_section2:
-    lea rax, [rel Player_Velocity + Point.y]
-    mov dword [rax], 0
+    lea rax, [rel Player_Velocity_Bool + 1]
+    mov byte [rax], 0
     jmp _End
 _Special_release_section3:
-    lea rax, [rel Player_Velocity + Point.x]
-    mov dword [rax], 0
+    lea rax, [rel Player_Velocity_Bool + 2]
+    mov byte [rax], 0
     jmp _End
 _Special_release_section4:
-    lea rax, [rel Player_Velocity + Point.y]
-    mov dword [rax], 0
+    lea rax, [rel Player_Velocity_Bool + 3]
+    mov byte [rax], 0
     jmp _End
     ret
 

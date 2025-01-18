@@ -172,8 +172,8 @@ _diving:
     jne _diving
     cmp rsi, "-"                    ; Checks if it is negative (it is found if negative earlier)
     jne _start_printing_process
-    cmp rsi, "+"
-    jne _start_printing_process   ; Checks if it is unsigned
+    ; cmp rsi, "+"
+    ; jne _start_printing_process   ; Checks if it is unsigned
     dec rsp
     mov byte [rsp], "-"
 _start_printing_process:
