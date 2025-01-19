@@ -17,22 +17,11 @@ section .rodata
     sin_list:
         sin_values_whole
     msg db "Hello World!", 10, 0
-    float1 dd 300000.0
     ten_milly dd 1000000
-    two dd 2.0
     PI dd 3.14159
     Exit_Msg db "Exiting now", 0xa, 0
     gravity dd 1
 
-    global Player_Height
-    global Player_Width
-
-    Player_Height dd 8
-    Player_Width dd 8
-    
-    One_point dd 1.0
-    neg_one dd -1.0
-    Zero_point dd 0.0
 section .data
     key_jump_table:
         dq _Special_key_section1, _Special_key_section2, _Special_key_section3, _Special_key_section4
@@ -42,7 +31,8 @@ section .data
     Player_direction dd 0
 
     global Player_Pos
-    ; global Player_Velocity
+
+    Entities_count dd 1
     Player_Pos:
         dd 960
         dd 540
@@ -68,49 +58,45 @@ display:
     saverbp
     mov rdi, 0x00004000
     call [rel glClear wrt ..got]
-    movss xmm0, [rel One_point]
-    movss xmm1, [rel Zero_point]
-    movss xmm2, [rel Zero_point]
+    mov rax, 1
+    cvtsi2ss xmm0, rax
+    mov rax, 0
+    cvtsi2ss xmm1, rax
+    movss xmm2, xmm1
     call [rel glColor3f wrt ..got]
     mov rdi, 7
     call [rel glBegin wrt ..got]
 
-    ; mov rdi, 0
-    ; sub rdi, 4
-    ; mov rsi, "d"
-    ; call printlnf
-    ; exit 0
-
     xor r10d, r10d ; Horizantle
     xor r9d, r9d ; Verticle
 
-    lea rdx, [rel Player_Velocity]
+    lea rdx, [rel Player_Velocity] ;Put the Velocity which is either 0 or 4
 
-    lea rax, [rel Player_Velocity_Bool]
+    lea rax, [rel Player_Velocity_Bool] ; Gets if the first key is pressed, and then makes it go left
     movzx rax, byte [rax]
     add rdx, rax
     sub r10b, byte [rdx]
     sub rdx, rax
 
-    lea rax, [rel Player_Velocity_Bool + 1]
+    lea rax, [rel Player_Velocity_Bool + 1] ; Gets if the up key is pressed, and then makes it go up
     movzx rax, byte [rax]
     add rdx, rax
     add r9b, byte [rdx]
     sub rdx, rax
 
-    lea rax, [rel Player_Velocity_Bool + 2]
+    lea rax, [rel Player_Velocity_Bool + 2] ; Gets if the right key is pressed, and then makes it go Righ
     movzx rax, byte [rax]
     add rdx, rax
     add r10b, byte [rdx]
     sub rdx, rax
 
-    lea rax, [rel Player_Velocity_Bool + 3]
+    lea rax, [rel Player_Velocity_Bool + 3] ; Gets if the down key is pressed, and then makes it go down
     movzx rax, byte [rax]
     add rdx, rax
     sub r9b, byte [rdx]
     sub rdx, rax
 
-    lea rax, [rel Player_Pos + Point.x]
+    lea rax, [rel Player_Pos + Point.x] ; Updates the x and y position each frame which is 144 frames per second
     movsx r10d, r10b
     add [rax], r10d
 
@@ -118,7 +104,12 @@ display:
     movsx r9d, r9b
     add [rax], r9d
 
-    Build_That_Square Player_Pos
+    ; lea rdi, [rel Player_Pos]
+    xor rdi, rdi
+    call check_out_of_bounds
+
+    lea rdi, [rel Player_Pos]   
+    call Build_That_Square 
     
     call [rel glEnd wrt ..got]
     call [rel glFlush wrt ..got]

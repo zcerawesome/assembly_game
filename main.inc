@@ -10,7 +10,8 @@
     mov rsi, 960
     cvtsi2ss xmm1, rsi
     divss xmm0, xmm1
-    movss xmm1, [rel neg_one]
+    mov rax, -1
+    cvtsi2ss xmm1, rax
     addss xmm0, xmm1
 
     mov rdi, %2
@@ -19,7 +20,7 @@
     mov rsi, 540
     cvtsi2ss xmm0, rsi
     divss xmm1, xmm0
-    movss xmm0, [rel neg_one]
+    cvtsi2ss xmm0, rax
     addss xmm1, xmm0
     movq xmm0, rdi
     call [rel glVertex2f wrt ..got]
@@ -80,33 +81,88 @@
     pop rax
 %endmacro
 
-%macro Build_That_Square 1
+Build_That_Square:
     ;Builds each corner
-    mov eax, [rel %1 + Point.x]
-    add eax, [rel %1 + Point.Width]
-    mov edx, [rel %1 + Point.y]
-    add edx, [rel %1 + Point.Height]
+    push rdi
+
+    mov eax, [rel rdi + Point.x]
+    add eax, [rel rdi + Point.Width]
+    mov edx, [rel rdi + Point.y]
+    add edx, [rel rdi + Point.Height]
     buildVertex2f rax, rdx
 
-    mov eax, [rel %1 + Point.x]
-    sub eax, [rel %1 + Point.Width]
-    mov edx, [rel %1 + Point.y]
-    add edx, [rel %1 + Point.Height]
+    mov rdi, [rsp]
+    mov eax, [rel rdi + Point.x]
+    sub eax, [rel rdi + Point.Width]
+    mov edx, [rel rdi + Point.y]
+    add edx, [rel rdi + Point.Height]
     buildVertex2f rax, rdx
 
-    mov eax, [rel %1 + Point.x]
-    sub eax, [rel %1 + Point.Width]
-    mov edx, [rel %1 + Point.y]
-    sub edx, [rel %1 + Point.Height]
+    mov rdi, [rsp]
+    mov eax, [rel rdi + Point.x]
+    sub eax, [rel rdi + Point.Width]
+    mov edx, [rel rdi + Point.y]
+    sub edx, [rel rdi + Point.Height]
     buildVertex2f rax, rdx
 
-    mov eax, [rel %1 + Point.x]
-    add eax, [rel %1 + Point.Width]
-    mov edx, [rel %1 + Point.y]
-    sub edx, [rel %1 + Point.Height]
+    mov rdi, [rsp]
+    mov eax, [rel rdi + Point.x]
+    add eax, [rel rdi + Point.Width]
+    mov edx, [rel rdi + Point.y]
+    sub edx, [rel rdi + Point.Height]
     buildVertex2f rax, rdx
+    pop rdi
+    ret
 
-%endmacro
+; Registers used: rax, rdi, rsi, 
+check_out_of_bounds:
+    saverbp
+    cmp rdi, 0
+    je _build_zero_space
+    mov dword [rbp - 4], 0
+    jmp _looping_for_entity
+_build_zero_space:
+    mov eax, [rel Entities_count]
+    dec eax
+    mov dword [rbp-4], eax
+    lea rdi, [rel Entities_count + 4]
+_looping_for_entity:
+    lea rax, [rdi + Point.x]
+    mov rsi, 1920
+    sub rsi, [rdi + Point.Width]
+    cmp dword [rax], esi
+    jl _Out_of_Bounds_X_Negative
+_Out_of_Bounds_X_Positive:
+    mov dword [rax], esi
+    jmp _Out_of_Bounds_X_Fail
+_Out_of_Bounds_X_Negative:
+    mov rsi, 0
+    add rsi, [rdi + Point.Width]
+    cmp dword [rax], esi
+    jg _Out_of_Bounds_X_Fail
+    mov dword [rax], esi
+_Out_of_Bounds_X_Fail:
+    lea rax, [rdi + Point.y]
+    mov rsi, 1080
+    sub rsi, [rdi + Point.Height]
+    cmp dword [rax], esi
+    jl _Out_of_Bounds_Y_Negative
+_Out_of_Bounds_Y_Positive:
+    mov dword [rax], esi
+    jmp _Out_of_Bounds_Y_Fail
+_Out_of_Bounds_Y_Negative:
+    mov rsi, 0
+    add rsi, [rdi + Point.Height]
+    cmp dword [rax], esi
+    jg _Out_of_Bounds_Y_Fail
+    mov dword [rax], esi
+_Out_of_Bounds_Y_Fail:
+    cmp dword [rbp-4], 0
+    je _end
+    dec dword [rbp-4]
+    add rdi, 16
+    jmp _looping_for_entity
+
 
 printlnf:
     call printff
@@ -135,7 +191,8 @@ _printing_float:
     print "."
     roundss xmm1, xmm0, 1
     subss xmm0, xmm1
-    movss xmm1, [rel ten_milly]
+    mov rax, 1000000
+    cvtsi2ss xmm1, rax
 
     mulss xmm0, xmm1
     movq rdi, xmm0

@@ -9,10 +9,6 @@ extern "C"
     float sin_a(int degree);
     float cos_a(int degree);
     // extern int global_degree;
-    extern Point Player_Pos;
-    extern Point Player_Velocity;
-    extern float Player_Height;
-    extern float Player_Width;
     void display();
     void printff(void* input, char inp);
     void printt(char inp);

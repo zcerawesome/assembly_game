@@ -63,8 +63,6 @@ int main() {
     char* argv[] = {(char*)"my_program"};
     global_degree = 0;
     glutInit(&argc, argv);
-    Player_Pos.x = 960;
-    Player_Pos.y = 540;
 
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); // Set display mode (single buffer, RGB color)
     glutInitWindowSize(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT)); // Set window size (800x600 pixels)
@@ -76,8 +74,6 @@ int main() {
     glutKeyboardFunc(keyboard);
     glutSpecialFunc(handleSpecialKeypress);
     glutSpecialUpFunc(handleSpecialKeyRelease);
-    Player_Pos.Width = 8;
-    Player_Pos.Height = 8;
     glutMainLoop();
     return 0;
 }
