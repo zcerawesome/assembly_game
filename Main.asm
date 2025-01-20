@@ -104,7 +104,6 @@ display:
     movsx r9d, r9b
     add [rax], r9d
 
-    ; lea rdi, [rel Player_Pos]
     xor rdi, rdi
     call check_out_of_bounds
 

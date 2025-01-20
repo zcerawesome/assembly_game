@@ -83,48 +83,43 @@
 
 Build_That_Square:
     ;Builds each corner
-    push rdi
-
-    mov eax, [rel rdi + Point.x]
-    add eax, [rel rdi + Point.Width]
-    mov edx, [rel rdi + Point.y]
-    add edx, [rel rdi + Point.Height]
+    mov rbx, rdi
+    mov eax, [rel rbx + Point.x]
+    add eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    add edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
 
-    mov rdi, [rsp]
-    mov eax, [rel rdi + Point.x]
-    sub eax, [rel rdi + Point.Width]
-    mov edx, [rel rdi + Point.y]
-    add edx, [rel rdi + Point.Height]
+    mov eax, [rel rbx + Point.x]
+    sub eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    add edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
 
-    mov rdi, [rsp]
-    mov eax, [rel rdi + Point.x]
-    sub eax, [rel rdi + Point.Width]
-    mov edx, [rel rdi + Point.y]
-    sub edx, [rel rdi + Point.Height]
+    mov eax, [rel rbx + Point.x]
+    sub eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    sub edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
 
-    mov rdi, [rsp]
-    mov eax, [rel rdi + Point.x]
-    add eax, [rel rdi + Point.Width]
-    mov edx, [rel rdi + Point.y]
-    sub edx, [rel rdi + Point.Height]
+    mov eax, [rel rbx + Point.x]
+    add eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    sub edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
-    pop rdi
+    ; pop rdi
     ret
 
 ; Registers used: rax, rdi, rsi, 
 check_out_of_bounds:
-    saverbp
     cmp rdi, 0
     je _build_zero_space
-    mov dword [rbp - 4], 0
+    mov edx, 0
     jmp _looping_for_entity
 _build_zero_space:
     mov eax, [rel Entities_count]
     dec eax
-    mov dword [rbp-4], eax
+    mov edx, eax
     lea rdi, [rel Entities_count + 4]
 _looping_for_entity:
     lea rax, [rdi + Point.x]
@@ -157,9 +152,9 @@ _Out_of_Bounds_Y_Negative:
     jg _Out_of_Bounds_Y_Fail
     mov dword [rax], esi
 _Out_of_Bounds_Y_Fail:
-    cmp dword [rbp-4], 0
-    je _end
-    dec dword [rbp-4]
+    cmp edx, 0
+    je _End
+    dec edx
     add rdi, 16
     jmp _looping_for_entity
 
