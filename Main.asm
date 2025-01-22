@@ -20,9 +20,9 @@ section .rodata
     ten_milly dd 1000000
     PI dd 3.14159
     Exit_Msg db "Exiting now", 0xa, 0
-    gravity dd 1
 
 section .data
+    gravity dd 1
     key_jump_table:
         dq _Special_key_section1, _Special_key_section2, _Special_key_section3, _Special_key_section4
     release_jump_table:
@@ -31,18 +31,24 @@ section .data
     Player_direction dd 0
 
     global Player_Pos
-
+    player_inst_vel:
+        dw 0
+        dw 0
     Entities_count dd 1
+    PLAYER_WIDTH equ 8
+    PLAYER_HEIGHT equ 8
     Player_Pos:
         dd 960
         dd 540
-        dd 8
-        dd 8
+        dd PLAYER_WIDTH
+        dd PLAYER_HEIGHT
+    Block:
+        dd 960
+        dd 52
+        dd 960
+        dd 52
     
     Player_Velocity_Bool dd 0
-
-section .bss
-    float_value resd 1
 
 section .text
     global sin_a
@@ -96,21 +102,63 @@ display:
     sub r9b, byte [rdx]
     sub rdx, rax
 
-    lea rax, [rel Player_Pos + Point.x] ; Updates the x and y position each frame which is 144 frames per second
-    movsx r10d, r10b
-    add [rax], r10d
+    lea rax, [rel player_inst_vel] ; Updates the x and y position each frame which is 144 frames per second
+    movsx r10w, r10b
+    add [rax], r10w
 
-    lea rax, [rel Player_Pos + Point.y]
-    movsx r9d, r9b
-    add [rax], r9d
+    
+    lea rax, [rel player_inst_vel + 2]
+    mov edi, [rel gravity]
+    movsx r9w, r9b
+    sub r9d, edi
+    add [rax], r9w
 
-    xor rdi, rdi
+    call check_object_interference
+
+    lea rax, [rel player_inst_vel]
+    mov ax, [rax]
+    lea rdi, [rel Player_Pos + Point.x]
+    add word [rdi], ax
+
+
+    lea rax, [rel player_inst_vel + 2]
+    mov ax, [rax]
+    lea rdi, [rel Player_Pos + Point.y]
+    add word [rdi], ax
+
+    lea rax, [rel player_inst_vel] ; Sets velocity to 0 to update
+    mov dword [rax], 0
+
+
+    lea rdi, [rel Player_Pos]
     call check_out_of_bounds
+
 
     lea rdi, [rel Player_Pos]   
     call Build_That_Square 
     
     call [rel glEnd wrt ..got]
+
+    mov rdi, 255 ; Divider
+    cvtsi2ss xmm3, rdi
+    mov rax, 108
+    cvtsi2ss xmm0, rax
+    divss xmm0, xmm3
+    mov rax, 32
+    cvtsi2ss xmm1, rax
+    divss xmm1, xmm3
+    mov rax, 196
+    cvtsi2ss xmm2, rax
+    divss xmm2, xmm3
+    call [rel glColor3f wrt ..got]
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
+
+    lea rdi, [rel Block]   
+    call Build_That_Square 
+
+    call [rel glEnd wrt ..got]
+
     call [rel glFlush wrt ..got]
 
     lea rax, [rel global_degree]
@@ -179,7 +227,16 @@ keyboard:
     call printff
     exit 0
 _keyboard_section_1:
-
+    cmp rdi, 48
+    jne _keyboard_section_2
+    movsx rdi, dword [rel Player_Pos + Point.x]
+    mov rsi, "d"
+    call printff
+    print ","
+    print " "
+    movsx rdi, dword [rel Player_Pos + Point.y]
+    mov rsi, "d"
+    call printlnf
 _keyboard_section_2:
 _keyboard_section_3:
 _keyboard_section_4:

@@ -81,6 +81,7 @@
     pop rax
 %endmacro
 
+;Registers used, rbx, rdi, rax, rdx
 Build_That_Square:
     ;Builds each corner
     mov rbx, rdi
@@ -110,17 +111,34 @@ Build_That_Square:
     ; pop rdi
     ret
 
+check_object_interference:
+    lea rsi, [rel Entities_count]
+    mov esi, dword [rsi]
+    shl rsi, 4
+    add rsi, [rel Player_Pos]
+    ;rsi holds current pointer to entity
+    %define PLAYER_HALF_HEIGHT (PLAYER_HEIGHT / 2)
+    %define PLAYER_HALF_WIDTH (PLAYER_WIDTH / 2)
+    mov rbx, 2
+_Loop_for_checking_interference:
+    cmp rsi, [rel Player_Pos]
+    xor rdx, rdx
+    je _End
+
+    sub rsi, 16
+    jmp _Loop_for_checking_interference
+_successful_collision_check:
+    mov rax, 1
+    ret
+_failed_collision_check:
+    mov rax, 0
+    ret
+
+
 ; Registers used: rax, rdi, rsi, 
 check_out_of_bounds:
-    cmp rdi, 0
-    je _build_zero_space
     mov edx, 0
     jmp _looping_for_entity
-_build_zero_space:
-    mov eax, [rel Entities_count]
-    dec eax
-    mov edx, eax
-    lea rdi, [rel Entities_count + 4]
 _looping_for_entity:
     lea rax, [rdi + Point.x]
     mov rsi, 1920
@@ -155,9 +173,8 @@ _Out_of_Bounds_Y_Fail:
     cmp edx, 0
     je _End
     dec edx
-    add rdi, 16
+    add rdi, 24
     jmp _looping_for_entity
-
 
 printlnf:
     call printff
