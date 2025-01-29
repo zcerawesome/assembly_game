@@ -34,9 +34,9 @@ section .data
     player_inst_vel:
         dw 0
         dw 0
-    Entities_count dd 1
     PLAYER_WIDTH equ 8
     PLAYER_HEIGHT equ 8
+    Entities_count dd 1
     Player_Pos:
         dd 960
         dd 540
@@ -113,7 +113,20 @@ display:
     sub r9d, edi
     add [rax], r9w
 
+    mov ax, [rel player_inst_vel + 2]
+    cda
+    xor ax, dx
+    sub ax, dx
+    mov bx, ax
+_check_y_interference:
+    cmp bx, 0
+    je _done_checking_y_interference
+    
     call check_object_interference
+    dec bx
+    jmp _check_y_interference
+_done_checking_y_interference:
+
 
     lea rax, [rel player_inst_vel]
     mov ax, [rax]

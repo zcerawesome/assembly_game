@@ -109,22 +109,57 @@ Build_That_Square:
     sub edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
     ; pop rdi
-    ret
+ret
 
 check_object_interference:
     lea rsi, [rel Entities_count]
     mov esi, dword [rsi]
-    shl rsi, 4
-    add rsi, [rel Player_Pos]
+    shl esi, 4 ; Multiples esi by 16
+    lea rax, [rel Player_Pos]
+    add rsi, rax
     ;rsi holds current pointer to entity
     %define PLAYER_HALF_HEIGHT (PLAYER_HEIGHT / 2)
     %define PLAYER_HALF_WIDTH (PLAYER_WIDTH / 2)
-    mov rbx, 2
+    mov rbx, 2 ; Used to divide the height and width by two
 _Loop_for_checking_interference:
-    cmp rsi, [rel Player_Pos]
+    lea rdx, [rel Player_Pos]
+    cmp rsi, rdx
+    je _failed_collision_check
     xor rdx, rdx
-    je _End
+    ; registers used for this, rbx for division, rdi for player value, rax for object 
+    mov rdi, [rel Player_Pos + Point.x]
+    sub rdi, PLAYER_WIDTH
+    mov rax, [rsi + Point.Width]
+    add rax, [rsi + Point.x]
+    cmp rdi, rax
+    jg _next_loop_collision_check 
 
+    xor rdx, rdx
+    mov rdi, [rel Player_Pos + Point.x]
+    add rdi, PLAYER_WIDTH
+    mov rax, [rsi + Point.Width]
+    neg rax
+    add rax, [rsi + Point.x]
+    cmp rdi, rax
+    jl _next_loop_collision_check
+
+    xor rdx, rdx
+    mov rdi, [rel Player_Pos + Point.y]
+    add rdi, PLAYER_HEIGHT 
+    mov rax, [rsi + Point.Height]
+    neg rax
+    add rax, [rsi + Point.y]
+    cmp rdi, rax
+    jg _next_loop_collision_check
+
+    xor rdx, rdx
+    mov rdi, [rel Player_Pos + Point.y]
+    sub rdi, PLAYER_HEIGHT
+    mov rax, [rsi + Point.Height]
+    add rax, [rsi + Point.y]
+    jl _next_loop_collision_check
+    jmp _successful_collision_check
+_next_loop_collision_check:
     sub rsi, 16
     jmp _Loop_for_checking_interference
 _successful_collision_check:
