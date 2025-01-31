@@ -108,25 +108,54 @@ display:
 
     
     lea rax, [rel player_inst_vel + 2]
-    mov edi, [rel gravity]
+    ; mov edi, [rel gravity]
     movsx r9w, r9b
-    sub r9d, edi
+    ; sub r9d, edi
     add [rax], r9w
 
-    mov ax, [rel player_inst_vel + 2]
-    cda
-    xor ax, dx
-    sub ax, dx
-    mov bx, ax
+;     mov bx, [rel player_inst_vel + 2]
+;     mov dx, 1
+;     cmp bx, 0
+;     jg _next_test 
+;     mov dx, -1
+; _next_test:
+;     movsx rdi, dx
+;     mov rsi, "d"
+;     call printlnf
+
+    ; jmp _done_checking_y_interference
+    lea r10, [rel Player_Pos + Point.y]
+    mov bx, [rel player_inst_vel + 2]
+    movsx rdi, bx
+    mov rsi, "d"
+    saveTopFour
+    ; call printlnf
+    getTopFour
+    mov bx, [rel player_inst_vel + 2]
+    mov dx, -1 ; incrementer
+    cmp bx, 0
+    jge _finished_first_y_check 
+    mov dx, 1
+_finished_first_y_check:
+    movsx esi, dx
 _check_y_interference:
     cmp bx, 0
     je _done_checking_y_interference
-    
+    add dword [r10], esi
+    ;use different registers, function call uses other registers
     call check_object_interference
-    dec bx
+    cmp rax, 0
+    jne _done_checking_y_interference
+    saveTopFour
+    movsx rdi, dx
+    mov rsi, "d"
+    call printlnf
+
+    exit 0
+    getTopFour
+    sub bx, dx
     jmp _check_y_interference
 _done_checking_y_interference:
-
 
     lea rax, [rel player_inst_vel]
     mov ax, [rax]
@@ -134,10 +163,10 @@ _done_checking_y_interference:
     add word [rdi], ax
 
 
-    lea rax, [rel player_inst_vel + 2]
-    mov ax, [rax]
-    lea rdi, [rel Player_Pos + Point.y]
-    add word [rdi], ax
+    ; lea rax, [rel player_inst_vel + 2]
+    ; mov ax, [rax]
+    ; lea rdi, [rel Player_Pos + Point.y]
+    ; add word [rdi], ax
 
     lea rax, [rel player_inst_vel] ; Sets velocity to 0 to update
     mov dword [rax], 0

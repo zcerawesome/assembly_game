@@ -111,6 +111,7 @@ Build_That_Square:
     ; pop rdi
 ret
 
+;registers used rsi, rax, rdx, rdi, 
 check_object_interference:
     lea rsi, [rel Entities_count]
     mov esi, dword [rsi]
@@ -118,9 +119,6 @@ check_object_interference:
     lea rax, [rel Player_Pos]
     add rsi, rax
     ;rsi holds current pointer to entity
-    %define PLAYER_HALF_HEIGHT (PLAYER_HEIGHT / 2)
-    %define PLAYER_HALF_WIDTH (PLAYER_WIDTH / 2)
-    mov rbx, 2 ; Used to divide the height and width by two
 _Loop_for_checking_interference:
     lea rdx, [rel Player_Pos]
     cmp rsi, rdx

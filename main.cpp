@@ -16,10 +16,10 @@ void displays()
     glColor3f(1.0f, 0.0f, 0.0f);
     // Begin drawing a polygon (in this case, a square)
     glBegin(GL_QUADS);  
-    glVertex2f(-0.75f, -1 * cos_a(global_degree));  // Bottom-left corner
-    glVertex2f( 0.75f, -1 * cos_a(global_degree));  // Bottom-right corner
-    glVertex2f( 0.5f, 1 * cos_a(global_degree));  // Top-right corner
-    glVertex2f(-0.5f, 1 * cos_a(global_degree));  // Top-left corner
+    // glVertex2f(-0.75f, -1 * cos_a(global_degree));  // Bottom-left corner
+    // glVertex2f( 0.75f, -1 * cos_a(global_degree));  // Bottom-right corner
+    // glVertex2f( 0.5f, 1 * cos_a(global_degree));  // Top-right corner
+    // glVertex2f(-0.5f, 1 * cos_a(global_degree));  // Top-left corner
     glEnd();
     GLUT_KEY_LEFT;
     GLUT_KEY_UP;
