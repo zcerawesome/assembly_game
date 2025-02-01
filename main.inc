@@ -123,38 +123,32 @@ _Loop_for_checking_interference:
     lea rdx, [rel Player_Pos]
     cmp rsi, rdx
     je _failed_collision_check
-    xor rdx, rdx
     ; registers used for this, rbx for division, rdi for player value, rax for object 
     mov rdi, [rel Player_Pos + Point.x]
     sub rdi, PLAYER_WIDTH
-    mov rax, [rsi + Point.Width]
-    add rax, [rsi + Point.x]
+    mov rax, [rsi + Point.x]
+    add rax, [rsi + Point.Width]
     cmp rdi, rax
     jg _next_loop_collision_check 
 
-    xor rdx, rdx
     mov rdi, [rel Player_Pos + Point.x]
     add rdi, PLAYER_WIDTH
-    mov rax, [rsi + Point.Width]
-    neg rax
-    add rax, [rsi + Point.x]
+    mov rax, [rsi + Point.x]
+    sub rax, [rsi + Point.Width]
     cmp rdi, rax
     jl _next_loop_collision_check
 
-    xor rdx, rdx
     mov rdi, [rel Player_Pos + Point.y]
-    add rdi, PLAYER_HEIGHT 
-    mov rax, [rsi + Point.Height]
-    neg rax
-    add rax, [rsi + Point.y]
+    sub rdi, PLAYER_HEIGHT 
+    mov rax, [rsi + Point.y]
+    add rax, [rsi + Point.Height]
     cmp rdi, rax
     jg _next_loop_collision_check
 
-    xor rdx, rdx
     mov rdi, [rel Player_Pos + Point.y]
-    sub rdi, PLAYER_HEIGHT
-    mov rax, [rsi + Point.Height]
-    add rax, [rsi + Point.y]
+    add rdi, PLAYER_HEIGHT
+    mov rax, [rsi + Point.y]
+    sub rax, [rsi + Point.Height]
     jl _next_loop_collision_check
     jmp _successful_collision_check
 _next_loop_collision_check:

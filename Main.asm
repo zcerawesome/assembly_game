@@ -47,7 +47,10 @@ section .data
         dd 52
         dd 960
         dd 52
-    
+    data1 dd 4
+    data2 dd 9
+    data3 dd 1232
+
     Player_Velocity_Bool dd 0
 
 section .text
@@ -124,37 +127,33 @@ display:
 ;     call printlnf
 
     ; jmp _done_checking_y_interference
-    lea r10, [rel Player_Pos + Point.y]
-    mov bx, [rel player_inst_vel + 2]
-    movsx rdi, bx
-    mov rsi, "d"
-    saveTopFour
-    ; call printlnf
-    getTopFour
-    mov bx, [rel player_inst_vel + 2]
-    mov dx, -1 ; incrementer
-    cmp bx, 0
+    movsx r9w, [rel player_inst_vel + 2]
+    mov r8w, 1 ; incrementer
+    cmp r9w, 0
     jge _finished_first_y_check 
-    mov dx, 1
+    mov r8w, -1
 _finished_first_y_check:
-    movsx esi, dx
+    movsx r12d, r8w
 _check_y_interference:
-    cmp bx, 0
+    cmp r9w, 0
     je _done_checking_y_interference
-    add dword [r10], esi
+    add dword [rel Player_Pos + Point.y], r12d
     ;use different registers, function call uses other registers
     call check_object_interference
-    cmp rax, 0
-    jne _done_checking_y_interference
-    saveTopFour
-    movsx rdi, dx
-    mov rsi, "d"
-    call printlnf
-
-    exit 0
-    getTopFour
-    sub bx, dx
+    ; mov rdi, rax
+    ; mov rsi, "d"
+    ; call printlnf
+    cmp rax, 1
+    je _failed_check
+    ; saveTopFour
+    ; movsx rdi, r12d
+    ; mov rsi, "d"
+    ; call printlnf
+    ; getTopFour
+    sub r9w, r8w
     jmp _check_y_interference
+_failed_check:
+    sub dword [rel Player_Pos + Point.y], r12d
 _done_checking_y_interference:
 
     lea rax, [rel player_inst_vel]
@@ -162,6 +161,10 @@ _done_checking_y_interference:
     lea rdi, [rel Player_Pos + Point.x]
     add word [rdi], ax
 
+    call check_object_interference
+    mov rdi, rax
+    mov rsi, "d"
+    call printlnf
 
     ; lea rax, [rel player_inst_vel + 2]
     ; mov ax, [rax]
