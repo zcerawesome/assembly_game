@@ -22,7 +22,8 @@ section .rodata
     Exit_Msg db "Exiting now", 0xa, 0
 
 section .data
-    gravity dd 1
+    gravity dd 0
+    gravity_const dd 0.05
     key_jump_table:
         dq _Special_key_section1, _Special_key_section2, _Special_key_section3, _Special_key_section4
     release_jump_table:
@@ -36,7 +37,7 @@ section .data
         dw 0
     PLAYER_WIDTH equ 8
     PLAYER_HEIGHT equ 8
-    Entities_count dd 1
+    Entities_count dd 2
     Player_Pos:
         dd 960
         dd 540
@@ -47,9 +48,11 @@ section .data
         dd 52
         dd 960
         dd 52
-    data1 dd 4
-    data2 dd 9
-    data3 dd 1232
+    Block1:
+        dd 793
+        dd 150
+        dd 24
+        dd 24
 
     Player_Velocity_Bool dd 0
 
@@ -90,8 +93,22 @@ display:
     lea rax, [rel Player_Velocity_Bool + 1] ; Gets if the up key is pressed, and then makes it go up
     movzx rax, byte [rax]
     add rdx, rax
-    add r9b, byte [rdx]
-    sub rdx, rax
+
+    cmp rax, 1
+    jne _skip_jumping
+    add r9d, 12
+    lea rdi, [rel Player_Pos + Point.y]
+    dec dword [rdi]
+    call check_object_interference
+    lea rdi, [rel Player_Pos + Point.y]
+    inc dword [rdi]
+    cmp rax, 0
+    je _subtract_normally_verticle_velocity
+    jmp _skip_jumping
+_subtract_normally_verticle_velocity:
+    mov r9b, 0
+_skip_jumping:
+    lea rdx, [rel Player_Velocity] ;Put the Velocity which is either 0 or 4
 
     lea rax, [rel Player_Velocity_Bool + 2] ; Gets if the right key is pressed, and then makes it go Righ
     movzx rax, byte [rax]
@@ -111,22 +128,12 @@ display:
 
     
     lea rax, [rel player_inst_vel + 2]
-    ; mov edi, [rel gravity]
+    movss xmm0, [rel gravity]
+    cvttss2si edi, xmm0
     movsx r9w, r9b
-    ; sub r9d, edi
+    sub r9d, edi
     add [rax], r9w
 
-;     mov bx, [rel player_inst_vel + 2]
-;     mov dx, 1
-;     cmp bx, 0
-;     jg _next_test 
-;     mov dx, -1
-; _next_test:
-;     movsx rdi, dx
-;     mov rsi, "d"
-;     call printlnf
-
-    ; jmp _done_checking_y_interference
     movsx r9w, [rel player_inst_vel + 2]
     mov r8w, 1 ; incrementer
     cmp r9w, 0
@@ -140,20 +147,22 @@ _check_y_interference:
     add dword [rel Player_Pos + Point.y], r12d
     ;use different registers, function call uses other registers
     call check_object_interference
-    ; mov rdi, rax
-    ; mov rsi, "d"
-    ; call printlnf
     cmp rax, 1
     je _failed_check
-    ; saveTopFour
-    ; movsx rdi, r12d
-    ; mov rsi, "d"
-    ; call printlnf
-    ; getTopFour
     sub r9w, r8w
     jmp _check_y_interference
 _failed_check:
     sub dword [rel Player_Pos + Point.y], r12d
+    ; lea rax, [rel gravity]
+    mov rax, 0
+    cvtsi2ss xmm0, rax
+    movss [rel gravity], xmm0
+    ; mov dword [rel gravity], eax
+    movss xmm0, [rel gravity]
+    mov rsi, "f"
+    call printlnf
+    lea rax, [rel player_inst_vel + 2]
+    mov word [rax], 0
 _done_checking_y_interference:
 
     lea rax, [rel player_inst_vel]
@@ -161,19 +170,9 @@ _done_checking_y_interference:
     lea rdi, [rel Player_Pos + Point.x]
     add word [rdi], ax
 
-    call check_object_interference
-    mov rdi, rax
-    mov rsi, "d"
-    call printlnf
-
-    ; lea rax, [rel player_inst_vel + 2]
-    ; mov ax, [rax]
-    ; lea rdi, [rel Player_Pos + Point.y]
-    ; add word [rdi], ax
 
     lea rax, [rel player_inst_vel] ; Sets velocity to 0 to update
-    mov dword [rax], 0
-
+    mov word [rax], 0
 
     lea rdi, [rel Player_Pos]
     call check_out_of_bounds
@@ -201,6 +200,8 @@ _done_checking_y_interference:
 
     lea rdi, [rel Block]   
     call Build_That_Square 
+    lea rdi, [rel Block1]   
+    call Build_That_Square 
 
     call [rel glEnd wrt ..got]
 
@@ -208,6 +209,16 @@ _done_checking_y_interference:
 
     lea rax, [rel global_degree]
     add dword [rax], 1
+
+    movss xmm0, [rel gravity]
+    ; mov rax, 24
+    ; cvtsi2ss xmm1, rax
+    ; mov rax, 720
+    ; cvtsi2ss xmm2, rax
+    ; divss xmm1, xmm2
+    movss xmm1, [rel gravity_const]
+    addss xmm0, xmm1
+    movss dword [rel gravity], xmm0
     poprbp
     ret
 
