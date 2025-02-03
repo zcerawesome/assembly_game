@@ -3,6 +3,8 @@
 
 extern "C"
 {
+    extern "C" bool lastPoint;
+    extern "C" int Entities_count;
     void display();
     void keyboard(unsigned char key, int x, int y);
     void handleSpecialKeypress(int key, int x, int y);

@@ -37,6 +37,7 @@ section .data
         dw 0
     PLAYER_WIDTH equ 8
     PLAYER_HEIGHT equ 8
+
     Entities_count dd 2
     Player_Pos:
         dd 960
@@ -53,6 +54,8 @@ section .data
         dd 150
         dd 24
         dd 24
+    lastPoint db 1
+
 
     Player_Velocity_Bool dd 0
 
@@ -61,6 +64,10 @@ section .text
     global cos_a
     global keyboard
     global display
+
+    global lastPoint
+    global Entities_count
+
     global handleSpecialKeypress
     global handleSpecialKeyRelease 
 

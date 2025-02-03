@@ -64,6 +64,15 @@ int main() {
     global_degree = 0;
     glutInit(&argc, argv);
 
+    void* void_ptr = &Entities_count;
+    long long int entity_count = *(long long int*)&void_ptr;
+    void_ptr = &lastPoint;
+    long long int last_count = *(long long int*)&void_ptr;
+    int amount_bytes = last_count-entity_count-4;
+    amount_bytes/=16;
+    amount_bytes--;
+    Entities_count = amount_bytes;
+
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); // Set display mode (single buffer, RGB color)
     glutInitWindowSize(glutGet(GLUT_SCREEN_WIDTH), glutGet(GLUT_SCREEN_HEIGHT)); // Set window size (800x600 pixels)
     glutCreateWindow("Assembly Game"); // Create a window with a title
