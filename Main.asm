@@ -51,7 +51,7 @@ section .data
         dd 52
     Block1:
         dd 793
-        dd 150
+        dd 128
         dd 24
         dd 24
     lastPoint db 1
@@ -103,7 +103,7 @@ display:
 
     cmp rax, 1
     jne _skip_jumping
-    add r9d, 12
+    add r9d, 8
     lea rdi, [rel Player_Pos + Point.y]
     dec dword [rdi]
     call check_object_interference
@@ -155,27 +155,42 @@ _check_y_interference:
     ;use different registers, function call uses other registers
     call check_object_interference
     cmp rax, 1
-    je _failed_check
+    je _failed_y_check
     sub r9w, r8w
     jmp _check_y_interference
-_failed_check:
+_failed_y_check:
     sub dword [rel Player_Pos + Point.y], r12d
     ; lea rax, [rel gravity]
     mov rax, 0
     cvtsi2ss xmm0, rax
     movss [rel gravity], xmm0
-    ; mov dword [rel gravity], eax
-    movss xmm0, [rel gravity]
-    mov rsi, "f"
-    call printlnf
     lea rax, [rel player_inst_vel + 2]
     mov word [rax], 0
 _done_checking_y_interference:
 
+
+    movsx r9w, [rel player_inst_vel]
+    mov r8w, 1 ; incrementer
+    cmp r9w, 0
+    jge _finished_first_x_check 
+    mov r8w, -1
+_finished_first_x_check:
+    movsx r12d, r8w
+_check_x_interference:
+    cmp r9w, 0
+    je _done_checking_x_interference
+    add dword [rel Player_Pos + Point.x], r12d
+    ;use different registers, function call uses other registers
+    call check_object_interference
+    cmp rax, 1
+    je _failed_x_check
+    sub r9w, r8w
+    jmp _check_x_interference
+_failed_x_check:
+    sub dword [rel Player_Pos + Point.x], r12d
     lea rax, [rel player_inst_vel]
-    mov ax, [rax]
-    lea rdi, [rel Player_Pos + Point.x]
-    add word [rdi], ax
+    mov word [rax], 0
+_done_checking_x_interference:
 
 
     lea rax, [rel player_inst_vel] ; Sets velocity to 0 to update
@@ -283,6 +298,7 @@ _End:
     ret
 
 keyboard:
+
     cmp rdi, 27
     jne _keyboard_section_1
     lea rdi, [rel Exit_Msg]
@@ -290,16 +306,15 @@ keyboard:
     call printff
     exit 0
 _keyboard_section_1:
-    cmp rdi, 48
-    jne _keyboard_section_2
-    movsx rdi, dword [rel Player_Pos + Point.x]
+    mov r10, rdx
+    mov rdi, rsi
     mov rsi, "d"
     call printff
     print ","
-    print " "
-    movsx rdi, dword [rel Player_Pos + Point.y]
+    mov rdi, r10
     mov rsi, "d"
     call printlnf
+    ret
 _keyboard_section_2:
 _keyboard_section_3:
 _keyboard_section_4:
