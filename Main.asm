@@ -51,7 +51,7 @@ section .data
         dd 52
     Block1:
         dd 793
-        dd 128
+        dd 200
         dd 24
         dd 24
     lastPoint db 1
@@ -161,9 +161,6 @@ _check_y_interference:
 _failed_y_check:
     sub dword [rel Player_Pos + Point.y], r12d
     ; lea rax, [rel gravity]
-    mov rax, 0
-    cvtsi2ss xmm0, rax
-    movss [rel gravity], xmm0
     lea rax, [rel player_inst_vel + 2]
     mov word [rax], 0
 _done_checking_y_interference:
@@ -232,15 +229,24 @@ _done_checking_x_interference:
     lea rax, [rel global_degree]
     add dword [rax], 1
 
+    lea rax, [rel Player_Pos + Point.y]
+    dec dword [rax]
+    call check_object_interference
+    lea rdi, [rel Player_Pos + Point.y]
+    inc dword [rdi]
+    cmp rax, 1
+    je _reset_gravity
     movss xmm0, [rel gravity]
-    ; mov rax, 24
-    ; cvtsi2ss xmm1, rax
-    ; mov rax, 720
-    ; cvtsi2ss xmm2, rax
-    ; divss xmm1, xmm2
     movss xmm1, [rel gravity_const]
     addss xmm0, xmm1
     movss dword [rel gravity], xmm0
+    jmp _done_display_method
+_reset_gravity:
+    mov rax, 0
+    cvtsi2ss xmm0, rax
+    movss [rel gravity], xmm0
+    jmp _done_display_method
+_done_display_method:
     poprbp
     ret
 
@@ -296,6 +302,8 @@ _Special_key_section4: ; Down
     jmp _End
 _End:
     ret
+
+add r9b, 4
 
 keyboard:
 
