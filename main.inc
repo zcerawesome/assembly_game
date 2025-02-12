@@ -270,7 +270,37 @@ _printing_float:
     cvtsi2ss xmm1, rax
 
     mulss xmm0, xmm1
-    movq rdi, xmm0
+    cvttss2si rax, xmm0
+    saverbp
+    push rax
+    dec rsp
+    mov byte [rsp],0
+    sub rsp, 4
+    mov dword [rsp], 10
+    mov rsi, 6
+_start_comparing_for_printing_zeroes:
+    cmp rax, 0
+    je _start_printing_pre_zeroes
+    xor rdx, rdx
+    div dword [rsp]
+    dec rsi
+    jmp _start_comparing_for_printing_zeroes
+_start_printing_pre_zeroes:
+    add rsp, 4
+    sub rsp, rsi
+_adding_zero_to_stack:
+    cmp rsi, 0
+    je _done_adding_zero_to_stack
+    dec rsp
+    mov byte [rsp], 48
+    dec rsi
+    jmp _adding_zero_to_stack
+_done_adding_zero_to_stack:
+    mov rdi, rsp
+    mov rsi, "s"
+    call printff
+    poprbp
+    mov rdi, [rsp - 16]
     mov rsi, "d"
     call printff
     jmp _end

@@ -22,8 +22,9 @@ section .rodata
     Exit_Msg db "Exiting now", 0xa, 0
 
 section .data
-    gravity dd 0
-    gravity_const dd 0.05
+    gravity dd 0.0
+    jump_vel equ 7
+    gravity_const dd 0.038
     key_jump_table:
         dq _Special_key_section1, _Special_key_section2, _Special_key_section3, _Special_key_section4
     release_jump_table:
@@ -70,7 +71,7 @@ section .text
 
     global handleSpecialKeypress
     global handleSpecialKeyRelease 
-
+    global getOne
     glImports   
 
 display:
@@ -102,8 +103,10 @@ display:
     add rdx, rax
 
     cmp rax, 1
-    jne _skip_jumping
-    add r9d, 8
+    je _normal_y_gravity
+    jmp _skip_jumping
+_normal_y_gravity:
+    add r9d, jump_vel
     lea rdi, [rel Player_Pos + Point.y]
     dec dword [rdi]
     call check_object_interference
@@ -239,7 +242,7 @@ _done_checking_x_interference:
     movss xmm0, [rel gravity]
     movss xmm1, [rel gravity_const]
     addss xmm0, xmm1
-    movss dword [rel gravity], xmm0
+    movss [rel gravity], xmm0
     jmp _done_display_method
 _reset_gravity:
     mov rax, 0
