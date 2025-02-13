@@ -41,7 +41,7 @@ section .data
 
     Entities_count dd 2
     Player_Pos:
-        dd 960
+        dd 150
         dd 540
         dd PLAYER_WIDTH
         dd PLAYER_HEIGHT
@@ -51,10 +51,15 @@ section .data
         dd 960
         dd 52
     Block1:
-        dd 793
-        dd 200
+        dd 118
+        dd 268
         dd 24
+        dd 12
+    Block2:
+        dd 164
+        dd 278
         dd 24
+        dd 12
     lastPoint db 1
 
 
@@ -224,6 +229,8 @@ _done_checking_x_interference:
     call Build_That_Square 
     lea rdi, [rel Block1]   
     call Build_That_Square 
+    lea rdi, [rel Block2]   
+    call Build_That_Square 
 
     call [rel glEnd wrt ..got]
 
@@ -323,6 +330,8 @@ _keyboard_section_1:
     call printff
     print ","
     mov rdi, r10
+    neg rdi
+    add rdi, 985
     mov rsi, "d"
     call printlnf
     ret
