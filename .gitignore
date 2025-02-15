@@ -6,3 +6,4 @@ Main
 # .gitignore
 temp.py
 *.s
+*.out
