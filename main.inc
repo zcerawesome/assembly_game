@@ -4,6 +4,12 @@
     syscall
 %endmacro
 
+_exiting:
+    lea rdi, [rel end_msg]
+    mov rsi, "s"
+    call printff
+    exit 0
+
 %macro popEverything 0
     pop r15
     pop r14
@@ -116,6 +122,34 @@
     pop rax
 %endmacro
 
+%macro buildingSquare 0
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
+%endmacro
+
+Build_That_Polygon:
+    mov rbx, rdi
+    mov eax, [rel rbx + Point.x]
+    mov edx, [rel rbx + Point.y]
+    add edx, [rel rbx + Point.Height]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel rbx + Point.x]
+    add eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel rbx + Point.x]
+    mov edx, [rel rbx + Point.y]
+    sub edx, [rel rbx + Point.Height]
+    buildVertex2f rax, rdx
+
+    mov eax, [rel rbx + Point.x]
+    sub eax, [rel rbx + Point.Width]
+    mov edx, [rel rbx + Point.y]
+    buildVertex2f rax, rdx
+ret
+
 ;Registers used, rbx, rdi, rax, rdx
 Build_That_Square:
     ;Builds each corner
@@ -143,8 +177,40 @@ Build_That_Square:
     mov edx, [rel rbx + Point.y]
     sub edx, [rel rbx + Point.Height]
     buildVertex2f rax, rdx
-    ; pop rdi
 ret
+
+special_object_interference: ;registers used: rdi, rsi, rax
+    mov rsi, rdi
+    mov edi, [rel Player_Pos + Point.x]
+    sub edi, PLAYER_WIDTH
+    mov eax, [rsi + Point.x]
+    add eax, [rsi + Point.Width]
+    cmp edi, eax
+    jg _failed_collision_check 
+
+    mov edi, [rel Player_Pos + Point.x]
+    add edi, PLAYER_WIDTH
+    mov eax, [rsi + Point.x]
+    sub eax, [rsi + Point.Width]
+    cmp edi, eax
+    jl _failed_collision_check
+
+    mov edi, [rel Player_Pos + Point.y]
+    sub edi, PLAYER_HEIGHT 
+    mov eax, [rsi + Point.y]
+    add eax, [rsi + Point.Height]
+    cmp edi, eax
+    jg _failed_collision_check
+
+    mov edi, [rel Player_Pos + Point.y]
+    add edi, PLAYER_HEIGHT
+    mov eax, [rsi + Point.y]
+    sub eax, [rsi + Point.Height]
+    cmp edi, eax
+    jl _failed_collision_check
+    jmp _successful_collision_check
+
+
 
 ;registers used rsi, rax, rdx, rdi, 
 check_object_interference:
@@ -387,8 +453,5 @@ sin_a:
     imul rax, rdx, 4 ;ints are offset by 4 bytes
     lea rdi, [rel sin_list]
     add rax, rdi
-    mov rax, [rax]
-    push rax
-    movss xmm0, [rsp]
-    pop rdi
+    movss xmm0, [rax]
     ret

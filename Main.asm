@@ -17,6 +17,7 @@ section .rodata
     sin_list:
         sin_values_whole
     msg db "Hello World!", 10, 0
+    end_msg db "Congrats on beating the Game!", 10, 0
     ten_milly dd 1000000
     PI dd 3.14159
     Exit_Msg db "Exiting now", 0xa, 0
@@ -39,10 +40,12 @@ section .data
     PLAYER_WIDTH equ 8
     PLAYER_HEIGHT equ 8
 
+    moving_block_vel dd 2
+
     Entities_count dd 2
     Player_Pos:
-        dd 150
-        dd 540
+        dd 45
+        dd 200
         dd PLAYER_WIDTH
         dd PLAYER_HEIGHT
     Block:
@@ -56,10 +59,123 @@ section .data
         dd 24
         dd 12
     Block2:
-        dd 164
-        dd 278
+        dd 200
+        dd 320
         dd 24
         dd 12
+    Block3:
+        dd 1725
+        dd 565
+        dd 24
+        dd 12
+    Block4:
+        dd 384
+        dd 320
+        dd 24
+        dd 12
+    Block5:
+        dd 568
+        dd 320
+        dd 24
+        dd 12
+    Block6:
+        dd 752
+        dd 320
+        dd 24
+        dd 12
+    Block7:
+        dd 936
+        dd 320
+        dd 24
+        dd 12
+    Block8:
+        dd 1120
+        dd 320
+        dd 24
+        dd 12
+    Block9:
+        dd 1320
+        dd 320
+        dd 24
+        dd 12
+    Block10:
+        dd 1515
+        dd 320
+        dd 24
+        dd 12
+    Block11:
+        dd 1725
+        dd 320
+        dd 24
+        dd 12
+    Block12:
+        dd 1852
+        dd 387
+        dd 24
+        dd 12
+    Block13:
+        dd 1725
+        dd 762
+        dd 24
+        dd 12
+    Block14:
+        dd 1631
+        dd 780
+        dd 70
+        dd 12
+
+
+    Block15:
+        dd 1515
+        dd 816
+        dd 10
+        dd 24
+    Block16:
+        dd 1200
+        dd 892
+        dd 8
+        dd 100
+    Block17:
+        dd 1227
+        dd 892
+        dd 35
+        dd 5
+    Block18: ;Barrier block
+        dd 1360
+        dd 950
+        dd 5
+        dd 130
+    Block19:
+        dd 1320
+        dd 815
+        dd 45
+        dd 5
+    Block20:
+        dd 1000
+        dd 874
+        dd 10
+        dd 82
+    Block21:
+        dd 790
+        dd 874
+        dd 10
+        dd 82
+    Block22:
+        dd 580
+        dd 874
+        dd 10
+        dd 82
+    Block23:
+        dd 370
+        dd 874
+        dd 10
+        dd 82
+
+    Polygon:
+        dd 59
+        dd 844
+        dd 20
+        dd 20
     lastPoint db 1
 
 
@@ -89,8 +205,6 @@ display:
     cvtsi2ss xmm1, rax
     movss xmm2, xmm1
     call [rel glColor3f wrt ..got]
-    mov rdi, 7
-    call [rel glBegin wrt ..got]
 
     xor r10d, r10d ; Horizantle
     xor r9d, r9d ; Verticle
@@ -205,6 +319,8 @@ _done_checking_x_interference:
     call check_out_of_bounds
 
 
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
     lea rdi, [rel Player_Pos]   
     call Build_That_Square 
     
@@ -231,13 +347,137 @@ _done_checking_x_interference:
     call Build_That_Square 
     lea rdi, [rel Block2]   
     call Build_That_Square 
+    lea rdi, [rel Block3]   
+    call Build_That_Square 
+    lea rdi, [rel Block4]   
+    call Build_That_Square 
+    lea rdi, [rel Block5]
+    call Build_That_Square 
+    lea rdi, [rel Block6]
+    call Build_That_Square 
+    lea rdi, [rel Block7]
+    call Build_That_Square 
+    lea rdi, [rel Block8]
+    call Build_That_Square 
+    lea rdi, [rel Block9]
+    call Build_That_Square 
+    lea rdi, [rel Block10]
+    call Build_That_Square 
+    lea rdi, [rel Block11]
+    call Build_That_Square 
+    lea rdi, [rel Block12]
+    call Build_That_Square 
+    lea rdi, [rel Block13]
+    call Build_That_Square 
+    lea rdi, [rel Block15]
+    call Build_That_Square 
+    lea rdi, [rel Block16]
+    call Build_That_Square 
+    lea rdi, [rel Block17]
+    call Build_That_Square 
+    lea rdi, [rel Block18]
+    call Build_That_Square 
+    lea rdi, [rel Block19]
+    call Build_That_Square 
+    lea rdi, [rel Block20]
+    call Build_That_Square 
+    lea rdi, [rel Block21]
+    call Build_That_Square 
+    lea rdi, [rel Block22]
+    call Build_That_Square 
+    lea rdi, [rel Block23]
+    call Build_That_Square 
+    
+    call [rel glEnd wrt ..got]
 
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
+    mov rdi, 255 ; Divider
+    cvtsi2ss xmm3, rdi
+    mov rax, 255
+    cvtsi2ss xmm0, rax
+    divss xmm0, xmm3
+    mov rax, 255
+    cvtsi2ss xmm1, rax
+    divss xmm1, xmm3
+    mov rax, 0
+    cvtsi2ss xmm2, rax
+    divss xmm2, xmm3
+    call [rel glColor3f wrt ..got]
+    mov rdi, 7
+    call [rel glBegin wrt ..got]
+
+    lea rdi, [rel Block14]
+    call Build_That_Square 
+
+    call [rel glEnd wrt ..got]
+    mov rdi, 9
+    call [rel glBegin wrt ..got]
+
+    lea rdi, [rel Polygon]
+    call Build_That_Polygon 
     call [rel glEnd wrt ..got]
 
     call [rel glFlush wrt ..got]
 
+    mov eax, [rel moving_block_vel]
+    mov edi, [rel Block14 + Point.x]
+    cmp edi, 71
+    jle _switch_vel
+    cmp edi, 1631
+    jge _switch_vel
+    jmp _regular_adding
+_switch_vel:
+    mov eax, [rel moving_block_vel]
+    neg eax
+    lea rdi, [rel moving_block_vel]
+    mov dword [rdi], eax
+_regular_adding:
+    mov eax, [rel moving_block_vel]
+    add dword [rel Block14 + Point.x], eax
+
+    mov edi, [rel global_degree]
+    call sin_a
+    mov rax, 20
+    cvtsi2ss xmm1, rax
+    mulss xmm0, xmm1
+    cvttss2si edi, xmm0
+    mov dword [rel Polygon + Point.Width], edi
+
     lea rax, [rel global_degree]
     add dword [rax], 1
+
+    lea rdx, [rel Player_Pos]
+    inc dword [rdx + Point.x]
+    lea rdi, [rel Polygon]
+    call special_object_interference
+    dec dword [rdx + Point.x]
+    cmp rax, 1
+    je _exiting
+
+    lea rdx, [rel Player_Pos]
+    dec dword [rdx + Point.y]
+    lea rdi, [rel Polygon]
+    call special_object_interference
+    inc dword [rdx + Point.y]
+    cmp rax, 1
+    je _exiting
+
+    lea rdx, [rel Player_Pos]
+    inc dword [rdx + Point.y]
+    lea rdi, [rel Polygon]
+    call special_object_interference
+    dec dword [rdx + Point.y]
+    cmp rax, 1
+    je _exiting
+
+    lea rdx, [rel Player_Pos]
+    dec dword [rdx + Point.x]
+    lea rdi, [rel Polygon]
+    call special_object_interference
+    inc dword [rdx + Point.x]
+    cmp rax, 1
+    je _exiting
 
     lea rax, [rel Player_Pos + Point.y]
     dec dword [rax]
